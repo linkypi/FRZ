@@ -228,7 +228,7 @@ namespace {
         }
 
         void pushNoZipData(TFRZ_Buffer& out_ctrlCode,TFRZ_Buffer&out_dataBuf,TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd)const{
-            assert(nozipEnd>nozipBegin);
+            assert(nozipEnd-nozipBegin>=1);
             assert(nozipEnd<=m_sstring.size());
             const TFRZ_Byte* data=(const TFRZ_Byte*)m_sstring.ssbegin+nozipBegin;
             const TFRZ_Byte* data_end=(const TFRZ_Byte*)m_sstring.ssbegin+nozipEnd;
@@ -238,7 +238,7 @@ namespace {
 
         void pushZipData(TFRZ_Buffer& out_ctrlCode,TFRZ_Buffer&out_dataBuf,TFRZ_Int32 matchLength,TFRZ_Int32 frontMatchPos)const{
             assert(frontMatchPos>0);
-            assert(matchLength>0);
+            assert(matchLength>=1); //>=3 
             pack32BitWithTag(out_ctrlCode,matchLength-1, kFRZCodeType_zip,kFRZCodeType_bit);
             pack32Bit(out_ctrlCode,frontMatchPos-1);
         }
@@ -260,7 +260,6 @@ namespace {
         memcpy(&out_code[0]+ctrlCodeSize_buf.size(),&ctrlCode[0],ctrlCode.size());
     }
     
-    
 } //end namespace
 
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
@@ -279,7 +278,7 @@ void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char
         FRZ1_compress_create_code(ctrlCode,dataBuf,step_src,step_src_end,zip_parameter);
     }
     FRZ1_compress_write_code(out_code,ctrlCode,dataBuf);
-    assert(out_code.size()<=FRZ1_compress_limitMemery_getMaxOutCodeSize(compress_step_count,(int)(src_end-src)));
+    //assert(out_code.size()<=FRZ1_compress_limitMemery_getMaxOutCodeSize(compress_step_count,(int)(src_end-src)));
 }
 
 void FRZ1_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){

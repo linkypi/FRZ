@@ -30,28 +30,28 @@
 #include <vector>
 #include <assert.h>
 
-static inline int FRZ1_compress_getMaxOutCodeSize(int srcDataSize) { return srcDataSize+6; }
+//static inline int FRZ1_compress_getMaxOutCodeSize(int srcDataSize) { return srcDataSize+6; }
 
 enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompressSpeed=32 };
 //zip_parameter: 增大该值,则压缩率变小,解压稍快  0时，压缩率最大.
 
-//需要压缩的数据<2G
+//压缩;  需要压缩的数据大小(src_end-src)<2G,否则请自己几次压缩.
 void FRZ1_compress(std::vector<unsigned char>& out_code,
                    const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
-static inline int FRZ1_compress_limitMemery_getMaxOutCodeSize(int compress_step_count,int srcDataSize) {
-    assert(compress_step_count>=1); return srcDataSize+6*compress_step_count; }
-static inline int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUsedMemrey_MB,int srcDataSize) {
-    assert(allCanUsedMemrey_MB*1024*(1024/16)>=3*srcDataSize/16);
-    int result=srcDataSize/(allCanUsedMemrey_MB*1024*(1024/16)-2*srcDataSize/16);
+//static inline int FRZ1_compress_limitMemery_getMaxOutCodeSize(int compress_step_count,int srcDataSize) { assert(compress_step_count>=1); return srcDataSize+6*compress_step_count; }
+//工具函数:按可用的最大内存计算比较合适的compress_step_count值.
+static inline int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize) {
+    assert(allCanUseMemrey_MB*1024*(1024/16)>=3*srcDataSize/16);
+    int result=srcDataSize/(allCanUseMemrey_MB*1024*(1024/16)-2*srcDataSize/16);
     if (result<1) result=1;
     return result;
 }
 
-//如果数据较大,内存不够用,可以分成COMPRESS_STEP_COUNT个块分别压缩(解码器不变).
+//节约内存的压缩; 如果调用FRZ1_compress时内存不够,可以改掉用FRZ1_compress_limitMemery,解码器不变; 函数实现时分成COMPRESS_STEP_COUNT个块分别压缩.
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,
                                const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
-//如果数据更大,一次装不到内存,那么你可以自己分多次加载数据,分别调用FRZ1_compress,解压时也需要自己分多次调用FRZ1_decompress.
+//如果要压缩的数据更大,一次装不到内存,那么你可以自己分多次加载数据,分别调用FRZ1_compress,解压时也需要自己分多次调用FRZ1_decompress.
 
 #endif //_FRZ1_COMPRESS_H_
