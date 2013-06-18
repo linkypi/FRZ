@@ -32,10 +32,10 @@
 // x1* 1* 0*  7+7+7-x bit
 // x1* 1* 1* 0*  7+7+7+7-x bit
 // x1* 1* 1* 1* 0*  7+7+7+7+7-x bit
-static TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithTag_NAME(const TFRZ_Byte** src_code,const TFRZ_Byte* src_code_end,const int kTagBit){//读出整数并前进指针.
+static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithTag_NAME(const TFRZ_Byte** src_code,const TFRZ_Byte* src_code_end,const int kTagBit){//读出整数并前进指针.
     const TFRZ_Byte* pcode;
     TFRZ_UInt32 value;
-    TFRZ_Byte   code;
+    TFRZ_UInt32 code;
     pcode=*src_code;
     
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
@@ -43,7 +43,7 @@ static TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithTag_NAME(const TFRZ_Byte** src_co
 #endif
     code=*pcode; ++pcode;
     value=code&((1<<(7-kTagBit))-1);
-    if ((code&(1<<(7-kTagBit)))!=0){
+    if ((code&(1<<(7-kTagBit)))){
         do {
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
             //assert((value>>(sizeof(value)*8-7))==0);
@@ -51,7 +51,7 @@ static TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithTag_NAME(const TFRZ_Byte** src_co
 #endif
             code=*pcode; ++pcode;
             value=(value<<7) | (code&((1<<7)-1));
-        } while ((code&(1<<7))!=0);
+        } while ((code&(1<<7)));
     }
     (*src_code)=pcode;
     return value;
