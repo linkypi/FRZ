@@ -89,13 +89,16 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
     
     const int kMaxValue_lcp=((TFRZ_UInt32)1<<31)-1;
     const int kMinZipLoseBitLength=8+out_FRZCode.getNozipLengthOutBitLength(1);
+    const int kMinLCPValue=out_FRZCode.getMinMatchLength();
     int lcp=kMaxValue_lcp;
     for (;it!=it_end;it+=it_inc,LCP+=it_inc){
         int curLCP=*LCP;
-        if (curLCP<lcp)
+        if (curLCP<lcp){
             lcp=curLCP;
-        
-        if ((lcp*8-kMinZipLoseBitLength)<curBestZipBitLength)//不可能压缩了.
+            if (lcp<kMinLCPValue)
+                break;
+        }
+        if (lcp*8<curBestZipBitLength+kMinZipLoseBitLength)//不可能压缩了.
             break;
         
         TSuffixIndex matchString=m_sstring.SA[it];
