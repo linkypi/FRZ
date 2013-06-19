@@ -1,0 +1,127 @@
+//FRZ_best_compress.h
+/*
+ Copyright (c) 2012-2013 HouSisong All Rights Reserved.
+ 
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+ 
+ The above copyright notice and this permission notice shall be
+ included in all copies of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+ */
+#ifndef _FRZ_BEST_COMPRESS_H_
+#define _FRZ_BEST_COMPRESS_H_
+#include <map>
+#include <assert.h>
+#include "../reader/FRZ_decompress_base.h"
+#include "FRZ_private/suffix_string.h"
+
+class TFRZCode_base{
+public:
+    inline explicit TFRZCode_base()
+    :m_src(0),m_src_end(0),m_zip_parameter(-1){ }
+    inline int zip_parameter()const{ return m_zip_parameter; }
+    inline const TFRZ_Byte* src_begin()const { return m_src; }
+    inline const TFRZ_Byte* src_end()const { return m_src_end; }
+    
+    virtual void pushDataInit(const TFRZ_Byte* src,const TFRZ_Byte* src_end,int zip_parameter){
+        m_src=src;
+        m_src_end=src_end;
+        m_zip_parameter=zip_parameter;
+    }
+    virtual void pushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd)=0;
+    virtual void pushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength)=0;
+    
+    virtual int getZipParameterForBestUncompressSpeed()const=0;
+    virtual int getNozipLengthOutBitLength(int nozipLength)const=0;
+    virtual int getZipLengthOutBitLength(int zipLength)const=0;
+    virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const=0;
+private:
+    const TFRZ_Byte* m_src;
+    const TFRZ_Byte* m_src_end;
+    int m_zip_parameter;
+};
+
+class TFRZBestZiper{
+public:
+    TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end,int zip_parameter);
+private:
+    TSuffixString m_sstring;
+    std::map<int,int> m_forwardOffsert_memcache;
+    inline static int memcacheKey(int matchpos){ return matchpos>>3; }
+    
+    void createCode(TFRZCode_base& out_FRZCode,int zip_parameter);
+    void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kMaxForwardOffsert);
+    
+    bool getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestZipBitLength,int nozipBegin,int endString);
+};
+
+
+typedef std::vector<TFRZ_Byte> TFRZ_Buffer;
+
+//变长32bit正整数编码方案(x bit额外类型标志位,x<=3),从高位开始输出1-5byte:
+// x0*  7-x bit
+// x1* 0*  7+7-x bit
+// x1* 1* 0*  7+7+7-x bit
+// x1* 1* 1* 0*  7+7+7+7-x bit
+// x1* 1* 1* 1* 0*  7+7+7+7+7-x bit
+static void pack32BitWithTag(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue,int highBit,const int kTagBit){//写入并前进指针.
+    const int kMaxPack32BitTagBit=3;
+    assert((0<=kTagBit)&&(kTagBit<=kMaxPack32BitTagBit));
+    assert((highBit>>kTagBit)==0);
+    const int kMaxPack32BitSize=5;
+    const unsigned int kMaxValueWithTag=(1<<(7-kTagBit))-1;
+    
+    TFRZ_Byte codeBuf[kMaxPack32BitSize];
+    TFRZ_Byte* codeEnd=codeBuf;
+    while (iValue>kMaxValueWithTag) {
+        *codeEnd=iValue&((1<<7)-1); ++codeEnd;
+        iValue>>=7;
+    }
+    out_code.push_back( (highBit<<(8-kTagBit)) | iValue | (((codeBuf!=codeEnd)?1:0)<<(7-kTagBit)));
+    while (codeBuf!=codeEnd) {
+        --codeEnd;
+        out_code.push_back((*codeEnd) | (((codeBuf!=codeEnd)?1:0)<<7));
+    }
+}
+
+inline static int pack32BitWithTagOutSize(TFRZ_UInt32 iValue,int kTagBit){//返回pack后字节大小.
+    if (iValue<(TFRZ_UInt32)(1<<(7+7-kTagBit))){
+        if (iValue<(TFRZ_UInt32)(1<<(7-kTagBit))){
+            return 1;
+        }else{
+            return 2;
+        }
+    }else{
+        if (iValue<(TFRZ_UInt32)(1<<(7+7+7-kTagBit))){
+            return 3;
+        }else if (iValue<(TFRZ_UInt32)(1<<(7+7+7+7-kTagBit))){
+            return 4;
+        }else {//if (iValue<(TFRZ_UInt32)(1<<(7+7+7+7+7-kTagBit))){
+            return 5;
+        }
+    }
+}
+
+static inline void pack32Bit(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue){
+    pack32BitWithTag(out_code, iValue, 0, 0);
+}
+static inline int pack32BitOutSize(TFRZ_UInt32 iValue){
+    return pack32BitWithTagOutSize(iValue, 0);
+}
+
+#endif //_FRZ_BEST_COMPRESS_H_

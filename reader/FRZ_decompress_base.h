@@ -1,4 +1,4 @@
-//  FRZ1_decompress_base.h
+//  FRZ_decompress_base.h
 /*
  Copyright (c) 2012-2013 HouSisong All Rights Reserved.
  (The MIT License)
@@ -24,8 +24,8 @@
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
 */
-#ifndef _FRZ1_DECOMPRESS_BASE_H_ 
-#define _FRZ1_DECOMPRESS_BASE_H_
+#ifndef _FRZ_DECOMPRESS_BASE_H_ 
+#define _FRZ_DECOMPRESS_BASE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,14 +36,24 @@ typedef unsigned short  TFRZ_UInt16;
 typedef signed int      TFRZ_Int32;
 typedef unsigned int    TFRZ_UInt32;
     
-enum TFRZCodeType{
-    kFRZCodeType_nozip = 0,    //0表示后面存的未压缩数据 (包中连续储存多个字节数据)
-    kFRZCodeType_zip   = 1     //1表示后面存的压缩(替代)数据.
-};
-static const int kFRZCodeType_bit=1;
+//用来启用针对小内存的memcpy优化,要求允许CPU读写未对齐内存;速度影响较小(打开可能快10%以上,CPU平台是否可用和效果需要测试).
+//#define FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
+//x86 x64 powerpc 默认打开.
+#ifndef FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
+#   if defined(__amd64__) || defined(__x86_64__) || defined(_M_AMD64)\
+        || defined(__386__) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(_M_I386) || defined(__I86__) || defined(_I386)\
+        || defined(__powerpc__) || defined(__powerpc) || defined(__ppc__) || defined(__PPC__) || defined(_M_PPC) || defined(_ARCH_PPC) || defined(_ARCH_PWR)
+#       define FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
+#   endif
+#endif
+    
+    
+#define frz_BOOL    int
+#define frz_FALSE   0
+//#define frz_TRUE    (!frz_FALSE)
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //_FRZ1_DECOMPRESS_BASE_H_
+#endif //_FRZ_DECOMPRESS_BASE_H_

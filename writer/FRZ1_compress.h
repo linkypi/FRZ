@@ -30,7 +30,6 @@
 #include <vector>
 #include <assert.h>
 
-//static inline int FRZ1_compress_getMaxOutCodeSize(int srcDataSize) { return srcDataSize+6; }
 
 enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompressSpeed=32 };
 //zip_parameter: 增大该值,则压缩率变小,解压稍快  0时，压缩率最大.
@@ -39,7 +38,6 @@ enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompres
 void FRZ1_compress(std::vector<unsigned char>& out_code,
                    const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
-//static inline int FRZ1_compress_limitMemery_getMaxOutCodeSize(int compress_step_count,int srcDataSize) { assert(compress_step_count>=1); return srcDataSize+6*compress_step_count; }
 //工具函数:按可用的最大内存计算比较合适的compress_step_count值.
 static inline int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize) {
     assert(allCanUseMemrey_MB*1024*(1024/16)>=3*srcDataSize/16);

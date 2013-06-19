@@ -1,4 +1,4 @@
-//  FRZ1_decompress.c
+//  FRZ_decompress.c
 /*
  Copyright (c) 2012-2013 HouSisong All Rights Reserved.
  (The MIT License)
@@ -25,7 +25,6 @@
  OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "FRZ1_decompress.h"
-#include "FRZ1_decompress_base.h"
 #include "string.h" //memcpy
 #include "assert.h" //assert
 
@@ -183,7 +182,7 @@ static void memcpy_tiny(unsigned char* dst,const unsigned char* src,TFRZ_UInt32 
 
 #define _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
 
-//for FRZ1_decompress_safe
+//for FRZ*_decompress_safe
 #   define _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
 #   define _PRIVATE_FRZ_DECOMPRESS_NAME FRZ1_decompress_safe
 #   define _PRIVATE_FRZ_unpack32BitWithTag_NAME unpack32BitWithTag_safe
@@ -192,7 +191,7 @@ static void memcpy_tiny(unsigned char* dst,const unsigned char* src,TFRZ_UInt32 
 #   undef  _PRIVATE_FRZ_DECOMPRESS_NAME
 #   undef  _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
 
-//for FRZ1_decompress
+//for FRZ*_decompress
 #   define _PRIVATE_FRZ_DECOMPRESS_NAME FRZ1_decompress
 #   define _PRIVATE_FRZ_unpack32BitWithTag_NAME unpack32BitWithTag
 #       include "FRZ1_decompress_inc.c"
