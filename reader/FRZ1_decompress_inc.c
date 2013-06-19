@@ -58,7 +58,7 @@ static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithTag_NAME(const TFRZ_Byte**
 }
 
 
-frz_BOOL _PRIVATE_FRZ_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end){
+frz_BOOL _PRIVATE_FRZ1_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end){
     TFRZ_UInt32 ctrlSize;
     const TFRZ_Byte* ctrlBuf;
     const TFRZ_Byte* ctrlBuf_end;
@@ -66,11 +66,11 @@ frz_BOOL _PRIVATE_FRZ_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* out
     TFRZ_UInt32 length;
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
     TFRZ_Byte* _out_data_begin;
+    _out_data_begin=out_data;
 #endif
     
     ctrlSize= _PRIVATE_FRZ_unpack32BitWithTag_NAME(&zip_code,zip_code_end,0);
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-    _out_data_begin=out_data;
     if (ctrlSize>(TFRZ_UInt32)(zip_code_end-zip_code)) return frz_FALSE;
 #endif
     ctrlBuf=zip_code;

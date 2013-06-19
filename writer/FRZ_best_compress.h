@@ -32,20 +32,21 @@
 
 class TFRZCode_base{
 public:
-    inline explicit TFRZCode_base()
-    :m_src(0),m_src_end(0),m_zip_parameter(-1){ }
+    inline explicit TFRZCode_base(int zip_parameter)
+    :m_src(0),m_src_end(0),m_zip_parameter(zip_parameter){ }
     inline int zip_parameter()const{ return m_zip_parameter; }
     inline const TFRZ_Byte* src_begin()const { return m_src; }
     inline const TFRZ_Byte* src_end()const { return m_src_end; }
     
-    virtual void pushDataInit(const TFRZ_Byte* src,const TFRZ_Byte* src_end,int zip_parameter){
+    virtual void pushDataInit(const TFRZ_Byte* src,const TFRZ_Byte* src_end){
         m_src=src;
         m_src_end=src_end;
-        m_zip_parameter=zip_parameter;
     }
+    
     virtual void pushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd)=0;
     virtual void pushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength)=0;
     
+    virtual int getMinMatchLength()const=0;
     virtual int getZipParameterForBestUncompressSpeed()const=0;
     virtual int getNozipLengthOutBitLength(int nozipLength)const=0;
     virtual int getZipLengthOutBitLength(int zipLength)const=0;
@@ -58,13 +59,13 @@ private:
 
 class TFRZBestZiper{
 public:
-    TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end,int zip_parameter);
+    TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end);
 private:
     TSuffixString m_sstring;
     std::map<int,int> m_forwardOffsert_memcache;
     inline static int memcacheKey(int matchpos){ return matchpos>>3; }
     
-    void createCode(TFRZCode_base& out_FRZCode,int zip_parameter);
+    void createCode(TFRZCode_base& out_FRZCode);
     void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kMaxForwardOffsert);
     
     bool getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestZipBitLength,int nozipBegin,int endString);
@@ -100,21 +101,13 @@ static void pack32BitWithTag(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue,int highBi
 }
 
 inline static int pack32BitWithTagOutSize(TFRZ_UInt32 iValue,int kTagBit){//返回pack后字节大小.
-    if (iValue<(TFRZ_UInt32)(1<<(7+7-kTagBit))){
-        if (iValue<(TFRZ_UInt32)(1<<(7-kTagBit))){
-            return 1;
-        }else{
-            return 2;
-        }
-    }else{
-        if (iValue<(TFRZ_UInt32)(1<<(7+7+7-kTagBit))){
-            return 3;
-        }else if (iValue<(TFRZ_UInt32)(1<<(7+7+7+7-kTagBit))){
-            return 4;
-        }else {//if (iValue<(TFRZ_UInt32)(1<<(7+7+7+7+7-kTagBit))){
-            return 5;
-        }
+    const unsigned int kMaxValueWithTag=(1<<(7-kTagBit))-1;
+    int result=0;
+    while (iValue>kMaxValueWithTag) {
+        ++result;
+        iValue>>=7;
     }
+    return (result+1);
 }
 
 static inline void pack32Bit(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue){

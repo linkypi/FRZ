@@ -31,8 +31,7 @@ namespace {
     
     class TFRZ1Code:public TFRZCode_base{
     public:
-        inline explicit TFRZ1Code():TFRZCode_base(){
-            
+        inline explicit TFRZ1Code(int zip_parameter):TFRZCode_base(zip_parameter){
         }
         virtual void pushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd){
             assert(nozipEnd>nozipBegin);
@@ -46,14 +45,15 @@ namespace {
         virtual void pushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength){
             const TFRZ_Int32 frontMatchPos=curPos-matchPos;
             assert(frontMatchPos>0);
-            assert(matchLength>=1); //>=3
+            assert(matchLength>=getMinMatchLength());
             pack32BitWithTag(m_ctrlCode,matchLength-1, kFRZ1CodeType_zip,kFRZ1CodeType_bit);
             pack32Bit(m_ctrlCode,frontMatchPos-1);
         }
         
+        virtual int getMinMatchLength()const { return 3+zip_parameter(); }
         inline virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ1_bestUncompressSpeed; }
         inline virtual int getNozipLengthOutBitLength(int nozipLength)const{ return 8*pack32BitWithTagOutSize(nozipLength-1,kFRZ1CodeType_bit); }
-        inline virtual int getZipLengthOutBitLength(int zipLength)const{ return getNozipLengthOutBitLength(zipLength); }
+        inline virtual int getZipLengthOutBitLength(int zipLength)const{ return 8*pack32BitWithTagOutSize(zipLength-1,kFRZ1CodeType_bit); }
         inline virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const{ return 8*pack32BitWithTagOutSize(curPos-matchPos-1,0); }
         
         void write_code(TFRZ_Buffer& out_code)const{
@@ -78,12 +78,12 @@ void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char
     assert((stepMemSize>0)||(src_end==src));
     
     out_code.clear();
-    TFRZ1Code FRZ1Code;
+    TFRZ1Code FRZ1Code(zip_parameter);
     for (const unsigned char* step_src=src; step_src<src_end; step_src+=stepMemSize) {
         const unsigned char* step_src_end=step_src+stepMemSize;
         if (step_src_end>src_end)
             step_src_end=src_end;
-        TFRZBestZiper FRZBestZiper(FRZ1Code,step_src,step_src_end,zip_parameter);
+        TFRZBestZiper FRZBestZiper(FRZ1Code,step_src,step_src_end);
     }
     FRZ1Code.write_code(out_code);
 }

@@ -25,6 +25,7 @@
  OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "FRZ1_decompress.h"
+#include "FRZ2_decompress.h"
 #include "string.h" //memcpy
 #include "assert.h" //assert
 
@@ -184,18 +185,28 @@ static void memcpy_tiny(unsigned char* dst,const unsigned char* src,TFRZ_UInt32 
 
 //for FRZ*_decompress_safe
 #   define _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-#   define _PRIVATE_FRZ_DECOMPRESS_NAME FRZ1_decompress_safe
-#   define _PRIVATE_FRZ_unpack32BitWithTag_NAME unpack32BitWithTag_safe
+#   define _PRIVATE_FRZ1_DECOMPRESS_NAME                FRZ1_decompress_safe
+#   define _PRIVATE_FRZ2_DECOMPRESS_NAME                FRZ2_decompress_safe
+#   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag_safe
+#   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte_safe
 #       include "FRZ1_decompress_inc.c"
+#       include "FRZ2_decompress_inc.c"
+#   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
-#   undef  _PRIVATE_FRZ_DECOMPRESS_NAME
+#   undef  _PRIVATE_FRZ2_DECOMPRESS_NAME
+#   undef  _PRIVATE_FRZ1_DECOMPRESS_NAME
 #   undef  _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
 
 //for FRZ*_decompress
-#   define _PRIVATE_FRZ_DECOMPRESS_NAME FRZ1_decompress
-#   define _PRIVATE_FRZ_unpack32BitWithTag_NAME unpack32BitWithTag
+#   define _PRIVATE_FRZ1_DECOMPRESS_NAME                FRZ1_decompress
+#   define _PRIVATE_FRZ2_DECOMPRESS_NAME                FRZ2_decompress
+#   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag
+#   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte
 #       include "FRZ1_decompress_inc.c"
+#       include "FRZ2_decompress_inc.c"
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
-#   undef  _PRIVATE_FRZ_DECOMPRESS_NAME
+#   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
+#   undef  _PRIVATE_FRZ2_DECOMPRESS_NAME
+#   undef  _PRIVATE_FRZ1_DECOMPRESS_NAME
 
 #undef  _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
