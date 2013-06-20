@@ -29,7 +29,9 @@
 
 #include <vector>
 #include <assert.h>
-
+//!!!FRZ2还处于测试阶段!!!
+//FRZ2比FRZ1压缩率略大,但解码速度也变慢;建议一般只用在要求FRZ1-0无法达到的压缩率的场景.
+//提示:FRZ2编码输出格式和FRZ1格式不兼容.
 
 enum TFRZ2_zip_parameter{ kFRZ2_bestSize=0, kFRZ2_default=4, kFRZ2_bestUncompressSpeed=32 };
 //zip_parameter: 增大该值,则压缩率变小,解压稍快  0时，压缩率最大.

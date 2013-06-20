@@ -39,7 +39,7 @@ TFRZBestZiper::TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,con
     m_sstring.R_create();
     m_sstring.LCP_create();
     createCode(out_FRZCode);
-    m_forwardOffsert_memcache.clear();
+    //m_forwardOffsert_memcache.clear();
     m_sstring.R.clear();
     m_sstring.LCP.clear();
 }
@@ -54,7 +54,7 @@ void TFRZBestZiper::createCode(TFRZCode_base& out_FRZCode){
         TFRZ_Int32 matchPos;
         TFRZ_Int32 zipBitLength;
         if (getBestMatch(out_FRZCode,curIndex,&matchLength,&matchPos,&zipBitLength,nozipBegin,sstrSize)){
-            ++m_forwardOffsert_memcache[memcacheKey(matchPos)];
+            //++m_forwardOffsert_memcache[memcacheKey(matchPos)];
             if (curIndex!=nozipBegin){//out no zip data
                 out_FRZCode.pushNoZipData(nozipBegin,curIndex);
             }
@@ -111,9 +111,10 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
                     zipedBitLength-=16*8;
             }
             if (zipedBitLength>=curBestZipBitLength){
-                if( (curBestMatchString<0) || (zipedBitLength>curBestZipBitLength)
-                   ||(m_forwardOffsert_memcache[memcacheKey(matchString)]>m_forwardOffsert_memcache[memcacheKey(curBestMatchString)])
-                   ||((m_forwardOffsert_memcache[memcacheKey(matchString)]==m_forwardOffsert_memcache[memcacheKey(curBestMatchString)])&&(matchString>curBestMatchString))){
+                if( (zipedBitLength>curBestZipBitLength) || (curBestMatchString<0)
+                   //||(m_forwardOffsert_memcache[memcacheKey(matchString)]>m_forwardOffsert_memcache[memcacheKey(curBestMatchString)])
+                   //||((m_forwardOffsert_memcache[memcacheKey(matchString)]==m_forwardOffsert_memcache[memcacheKey(curBestMatchString)])&&(matchString>curBestMatchString))){
+                   ||(matchString>curBestMatchString)){
                     curBestZipBitLength=zipedBitLength;
                     curBestMatchString=matchString;
                     curBestMatchLength=lcp;

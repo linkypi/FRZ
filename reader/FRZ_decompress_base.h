@@ -35,16 +35,18 @@ typedef unsigned char   TFRZ_Byte;
 typedef unsigned short  TFRZ_UInt16;
 typedef signed int      TFRZ_Int32;
 typedef unsigned int    TFRZ_UInt32;
-    
-//用来启用针对小内存的memcpy优化,要求允许CPU读写未对齐内存;速度影响较小(打开可能快10%以上,CPU平台是否可用和效果需要测试).
-//#define FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
+
+//#define FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
+//用来启用未对齐内存读写优化,要求允许CPU读写未对齐内存(CPU平台是否可用和未对齐内存读写速度需要测试).
+#ifndef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
 //x86 x64 powerpc 默认打开.
 #ifndef FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
 #   if defined(__amd64__) || defined(__x86_64__) || defined(_M_AMD64)\
         || defined(__386__) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(_M_I386) || defined(__I86__) || defined(_I386)\
         || defined(__powerpc__) || defined(__powerpc) || defined(__ppc__) || defined(__PPC__) || defined(_M_PPC) || defined(_ARCH_PPC) || defined(_ARCH_PWR)
-#       define FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
+#       define FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
 #   endif
+#endif
 #endif
     
     

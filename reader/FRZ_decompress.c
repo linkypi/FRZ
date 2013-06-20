@@ -43,21 +43,27 @@ inline static void memcpy_order(TFRZ_Byte* dst,const TFRZ_Byte* src,TFRZ_UInt32 
     for (;i<length;++i)
         dst[i]=src[i];
 }
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifdef FRZ_DECOMPRESS_USE_MEMCPY_TINY__MEM_NOTMUST_ALIGN
-
-#ifdef _INT64_T
-    typedef int64_t TFRZ_DataBit64;
+typedef struct TFRZ_data_64Bit {
+#ifndef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
+   void* _data[8/sizeof(void*)];
 #else
-    typedef struct TFRZ_DataBit64 {
-        TFRZ_UInt32 _data0;
-        TFRZ_UInt32 _data1;
-    } TFRZ_DataBit64;
+    unsigned char _data[8/sizeof(unsigned char)];
+#endif
+} TFRZ_data_64Bit;
+
+//static char _private_assert_TFRZ_data_64Bit_size8[1-2*(sizeof(struct TFRZ_data_64Bit)!=8)];
+    
+#ifdef __cplusplus
+}
 #endif
 
 #define _memcpy_tiny_COPYBYTE(i,IType) *(IType*)(d-i) = *(const IType*)(s-i)
 //#define _memcpy_tiny_COPYBYTE(i,IType) *(IType*)(dst+(i-sizeof(IType))) = *(const IType*)(src+(i-sizeof(IType)))
-#define _memcpy_tiny_COPY_BYTE_8(i) _memcpy_tiny_COPYBYTE(i,TFRZ_DataBit64)
+#define _memcpy_tiny_COPY_BYTE_8(i) _memcpy_tiny_COPYBYTE(i,struct TFRZ_data_64Bit)
 #define _memcpy_tiny_COPY_BYTE_4(i) _memcpy_tiny_COPYBYTE(i,TFRZ_UInt32)
 #define _memcpy_tiny_COPY_BYTE_2(i) _memcpy_tiny_COPYBYTE(i,TFRZ_UInt16)
 #define _memcpy_tiny_COPY_BYTE_1(i) _memcpy_tiny_COPYBYTE(i,TFRZ_Byte)
@@ -168,18 +174,13 @@ static void memcpy_tiny(unsigned char* dst,const unsigned char* src,TFRZ_UInt32 
             _memcpy_tiny_case_COPY_BYTE_1(1);
             return;
             
-            case 0:
-                return;
+            //case 0:
+            //    return;
         }
     }else{
         memcpy(dst, src, len);
     }
 }
-
-#else
-    #define memcpy_tiny memcpy
-#endif
-
 
 #define _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
 
