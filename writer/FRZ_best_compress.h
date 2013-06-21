@@ -62,9 +62,7 @@ public:
     TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end);
 private:
     TSuffixString m_sstring;
-    std::map<int,int> m_forwardOffsert_memcache;
-    inline static int memcacheKey(int matchpos){ return matchpos>>3; }
-    
+    //std::map<int,int> m_forwardOffsert_memcache;
     void createCode(TFRZCode_base& out_FRZCode);
     void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kMaxForwardOffsert);
     

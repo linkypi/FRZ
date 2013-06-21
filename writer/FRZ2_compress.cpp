@@ -34,13 +34,7 @@ namespace {
     // 1* 0*  3+3 bit
     // 1* 1* 0*  3+3+3 bit
     // 1* 1* 1* 0*  3+3+3+3 bit
-    // 1* 1* 1* 1* 0*  3+3+3+3+3 bit
-    // 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3 bit
-    // 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3 bit
-    // 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3 bit
-    // 1* 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3+3 bit
-    // 1* 1* 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3+3+3 bit
-    // 1* 1* 1* 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3+3+3+3 bit
+    //...
     void pack32BitWithHalfByte(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue,bool* isHaveHalfByte){
         const int kMaxPack32BitSize=6;
         TFRZ_Byte codeBuf[kMaxPack32BitSize*2];

@@ -32,12 +32,7 @@
 // 1* 1* 0*  3+3+3 bit
 // 1* 1* 1* 0*  3+3+3+3 bit
 // 1* 1* 1* 1* 0*  3+3+3+3+3 bit
-// 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3 bit
-// 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3 bit
-// 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3 bit
-// 1* 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3+3 bit
-// 1* 1* 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3+3+3 bit
-// 1* 1* 1* 1* 1* 1* 1* 1* 1* 1* 0*  3+3+3+3+3+3+3+3+3+3+3 bit
+//...
 static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME(const TFRZ_Byte** src_code,const TFRZ_Byte* src_code_end,TFRZ_UInt32* _halfByte){//读出整数并前进指针.
     const TFRZ_Byte* pcode;
     TFRZ_UInt32 value;
@@ -162,7 +157,7 @@ frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
         }
     }
     return (zip_code==zip_code_end)&&(out_data==out_data_end)&&(frontMatchPosBuf==frontMatchPosBuf_end)
-                &&((ctrlHalfLengthBuf_end-ctrlHalfLengthBuf)/2==0);
+                &&(ctrlHalfLengthBuf_end==ctrlHalfLengthBuf);
 }
 
 #endif //_PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
