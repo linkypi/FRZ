@@ -57,7 +57,6 @@ namespace {
         inline virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const{ return 8*pack32BitWithTagOutSize(curPos-matchPos-1,0); }
         
         void write_code(TFRZ_Buffer& out_code)const{
-            out_code.clear();
             pack32Bit(out_code,(TFRZ_Int32)m_ctrlCode.size());
             out_code.insert(out_code.end(),m_ctrlCode.begin(),m_ctrlCode.end());
             out_code.insert(out_code.end(),m_dataBuf.begin(),m_dataBuf.end());
@@ -77,7 +76,6 @@ void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char
     const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);
     assert((stepMemSize>0)||(src_end==src));
     
-    out_code.clear();
     TFRZ1Code FRZ1Code(zip_parameter);
     for (const unsigned char* step_src=src; step_src<src_end; step_src+=stepMemSize) {
         const unsigned char* step_src_end=step_src+stepMemSize;

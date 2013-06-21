@@ -50,7 +50,7 @@ public:
     virtual int getZipParameterForBestUncompressSpeed()const=0;
     virtual int getNozipLengthOutBitLength(int nozipLength)const=0;
     virtual int getZipLengthOutBitLength(int zipLength)const=0;
-    virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const=0;
+    virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const=0;    
 private:
     const TFRZ_Byte* m_src;
     const TFRZ_Byte* m_src_end;

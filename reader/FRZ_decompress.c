@@ -174,8 +174,8 @@ static void memcpy_tiny(unsigned char* dst,const unsigned char* src,TFRZ_UInt32 
             _memcpy_tiny_case_COPY_BYTE_1(1);
             return;
             
-            //case 0:
-            //    return;
+            case 0:
+                return;
         }
     }else{
         memcpy(dst, src, len);
