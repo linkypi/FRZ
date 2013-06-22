@@ -1,0 +1,287 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D6BA8CBA1773C00C002ED18C /* FRZ1_decompress_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8C9F1773C00C002ED18C /* FRZ1_decompress_inc.c */; };
+		D6BA8CBB1773C00C002ED18C /* FRZ2_decompress_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CA11773C00C002ED18C /* FRZ2_decompress_inc.c */; };
+		D6BA8CBC1773C00C002ED18C /* FRZ_decompress.c in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CA21773C00C002ED18C /* FRZ_decompress.c */; };
+		D6BA8CBF1773C00C002ED18C /* unit_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CAE1773C00C002ED18C /* unit_test.cpp */; };
+		D6BA8CC01773C00C002ED18C /* FRZ1_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB01773C00C002ED18C /* FRZ1_compress.cpp */; };
+		D6BA8CC11773C00C002ED18C /* FRZ2_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB21773C00C002ED18C /* FRZ2_compress.cpp */; };
+		D6BA8CC21773C00C002ED18C /* FRZ_best_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB41773C00C002ED18C /* FRZ_best_compress.cpp */; };
+		D6BA8CC31773C00C002ED18C /* suffix_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB81773C00C002ED18C /* suffix_string.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D6BA8C631773BDCF002ED18C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		D6BA8C651773BDCF002ED18C /* frz_unit_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = frz_unit_test; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6BA8C9E1773C00C002ED18C /* FRZ1_decompress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ1_decompress.h; sourceTree = "<group>"; };
+		D6BA8C9F1773C00C002ED18C /* FRZ1_decompress_inc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FRZ1_decompress_inc.c; sourceTree = "<group>"; };
+		D6BA8CA01773C00C002ED18C /* FRZ2_decompress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ2_decompress.h; sourceTree = "<group>"; };
+		D6BA8CA11773C00C002ED18C /* FRZ2_decompress_inc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FRZ2_decompress_inc.c; sourceTree = "<group>"; };
+		D6BA8CA21773C00C002ED18C /* FRZ_decompress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FRZ_decompress.c; sourceTree = "<group>"; };
+		D6BA8CA31773C00C002ED18C /* FRZ_decompress_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_decompress_base.h; sourceTree = "<group>"; };
+		D6BA8CAE1773C00C002ED18C /* unit_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = unit_test.cpp; path = ../../unit_test.cpp; sourceTree = "<group>"; };
+		D6BA8CB01773C00C002ED18C /* FRZ1_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ1_compress.cpp; sourceTree = "<group>"; };
+		D6BA8CB11773C00C002ED18C /* FRZ1_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ1_compress.h; sourceTree = "<group>"; };
+		D6BA8CB21773C00C002ED18C /* FRZ2_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ2_compress.cpp; sourceTree = "<group>"; };
+		D6BA8CB31773C00C002ED18C /* FRZ2_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ2_compress.h; sourceTree = "<group>"; };
+		D6BA8CB41773C00C002ED18C /* FRZ_best_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_best_compress.cpp; sourceTree = "<group>"; };
+		D6BA8CB51773C00C002ED18C /* FRZ_best_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_best_compress.h; sourceTree = "<group>"; };
+		D6BA8CB71773C00C002ED18C /* sais.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sais.hxx; sourceTree = "<group>"; };
+		D6BA8CB81773C00C002ED18C /* suffix_string.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = suffix_string.cpp; sourceTree = "<group>"; };
+		D6BA8CB91773C00C002ED18C /* suffix_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = suffix_string.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D6BA8C621773BDCF002ED18C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D6BA8C5C1773BDCF002ED18C = {
+			isa = PBXGroup;
+			children = (
+				D6BA8CAE1773C00C002ED18C /* unit_test.cpp */,
+				D6BA8C9B1773C00C002ED18C /* FRZ */,
+				D6BA8C661773BDCF002ED18C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D6BA8C661773BDCF002ED18C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D6BA8C651773BDCF002ED18C /* frz_unit_test */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D6BA8C9B1773C00C002ED18C /* FRZ */ = {
+			isa = PBXGroup;
+			children = (
+				D6BA8C9D1773C00C002ED18C /* reader */,
+				D6BA8CAF1773C00C002ED18C /* writer */,
+			);
+			name = FRZ;
+			path = ../../..;
+			sourceTree = "<group>";
+		};
+		D6BA8C9D1773C00C002ED18C /* reader */ = {
+			isa = PBXGroup;
+			children = (
+				D6BA8C9E1773C00C002ED18C /* FRZ1_decompress.h */,
+				D6BA8C9F1773C00C002ED18C /* FRZ1_decompress_inc.c */,
+				D6BA8CA01773C00C002ED18C /* FRZ2_decompress.h */,
+				D6BA8CA11773C00C002ED18C /* FRZ2_decompress_inc.c */,
+				D6BA8CA21773C00C002ED18C /* FRZ_decompress.c */,
+				D6BA8CA31773C00C002ED18C /* FRZ_decompress_base.h */,
+			);
+			path = reader;
+			sourceTree = "<group>";
+		};
+		D6BA8CAF1773C00C002ED18C /* writer */ = {
+			isa = PBXGroup;
+			children = (
+				D6BA8CB01773C00C002ED18C /* FRZ1_compress.cpp */,
+				D6BA8CB11773C00C002ED18C /* FRZ1_compress.h */,
+				D6BA8CB21773C00C002ED18C /* FRZ2_compress.cpp */,
+				D6BA8CB31773C00C002ED18C /* FRZ2_compress.h */,
+				D6BA8CB41773C00C002ED18C /* FRZ_best_compress.cpp */,
+				D6BA8CB51773C00C002ED18C /* FRZ_best_compress.h */,
+				D6BA8CB61773C00C002ED18C /* FRZ_private */,
+			);
+			path = writer;
+			sourceTree = "<group>";
+		};
+		D6BA8CB61773C00C002ED18C /* FRZ_private */ = {
+			isa = PBXGroup;
+			children = (
+				D6BA8CB71773C00C002ED18C /* sais.hxx */,
+				D6BA8CB81773C00C002ED18C /* suffix_string.cpp */,
+				D6BA8CB91773C00C002ED18C /* suffix_string.h */,
+			);
+			path = FRZ_private;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D6BA8C641773BDCF002ED18C /* frz_unit_test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6BA8C6E1773BDCF002ED18C /* Build configuration list for PBXNativeTarget "frz_unit_test" */;
+			buildPhases = (
+				D6BA8C611773BDCF002ED18C /* Sources */,
+				D6BA8C621773BDCF002ED18C /* Frameworks */,
+				D6BA8C631773BDCF002ED18C /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = frz_unit_test;
+			productName = frz_unit_test;
+			productReference = D6BA8C651773BDCF002ED18C /* frz_unit_test */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D6BA8C5D1773BDCF002ED18C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = housisong;
+			};
+			buildConfigurationList = D6BA8C601773BDCF002ED18C /* Build configuration list for PBXProject "frz_unit_test" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D6BA8C5C1773BDCF002ED18C;
+			productRefGroup = D6BA8C661773BDCF002ED18C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D6BA8C641773BDCF002ED18C /* frz_unit_test */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D6BA8C611773BDCF002ED18C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6BA8CBA1773C00C002ED18C /* FRZ1_decompress_inc.c in Sources */,
+				D6BA8CBB1773C00C002ED18C /* FRZ2_decompress_inc.c in Sources */,
+				D6BA8CBC1773C00C002ED18C /* FRZ_decompress.c in Sources */,
+				D6BA8CBF1773C00C002ED18C /* unit_test.cpp in Sources */,
+				D6BA8CC01773C00C002ED18C /* FRZ1_compress.cpp in Sources */,
+				D6BA8CC11773C00C002ED18C /* FRZ2_compress.cpp in Sources */,
+				D6BA8CC21773C00C002ED18C /* FRZ_best_compress.cpp in Sources */,
+				D6BA8CC31773C00C002ED18C /* suffix_string.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		D6BA8C6C1773BDCF002ED18C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D6BA8C6D1773BDCF002ED18C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		D6BA8C6F1773BDCF002ED18C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		D6BA8C701773BDCF002ED18C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D6BA8C601773BDCF002ED18C /* Build configuration list for PBXProject "frz_unit_test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6BA8C6C1773BDCF002ED18C /* Debug */,
+				D6BA8C6D1773BDCF002ED18C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D6BA8C6E1773BDCF002ED18C /* Build configuration list for PBXNativeTarget "frz_unit_test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6BA8C6F1773BDCF002ED18C /* Debug */,
+				D6BA8C701773BDCF002ED18C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D6BA8C5D1773BDCF002ED18C /* Project object */;
+}

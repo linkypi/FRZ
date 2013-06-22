@@ -51,10 +51,12 @@ namespace {
         }
         
         virtual int getMinMatchLength()const { return 3+zip_parameter(); }
+        virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
+            if (curString<0){ curString=1; matchString=0; }
+            return 8*matchLength-8*pack32BitWithTagOutSize(matchLength,kFRZ1CodeType_bit)-8*pack32BitWithTagOutSize(curString-matchString-1,0);
+        }
         virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ1_bestUncompressSpeed; }
-        virtual int getNozipLengthOutBitLength(int nozipLength)const{ return 8*pack32BitWithTagOutSize(nozipLength-1,kFRZ1CodeType_bit); }
-        virtual int getZipLengthOutBitLength(int zipLength)const{ return 8*pack32BitWithTagOutSize(zipLength-1,kFRZ1CodeType_bit); }
-        virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const{ return 8*pack32BitWithTagOutSize(curPos-matchPos-1,0); }
+        virtual int getNozipLengthOutBitLength(int nozipLength)const{ assert(nozipLength>=1); return 8*pack32BitWithTagOutSize(nozipLength-1,kFRZ1CodeType_bit); }
         
         void write_code(TFRZ_Buffer& out_code)const{
             pack32Bit(out_code,(TFRZ_Int32)m_ctrlCode.size());

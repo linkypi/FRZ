@@ -136,10 +136,14 @@ namespace {
         }
         
         virtual int getMinMatchLength()const { return 3+zip_parameter(); }
+        virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
+            assert(matchLength>=getMinMatchLength());
+            if (curString<0){ curString=1; matchString=0; }
+            return 8*matchLength-(kFRZ2CodeType_bit+8*pack32BitWithTagOutSize(curString-matchString-1,0)+pack32BitWithHalfByteOutBitCount(matchLength-getMinMatchLength()));
+        }
+        virtual int getMinZipBitLength()const {  return getMinMatchLength()*8-(kFRZ2CodeType_bit+1*4+1*8); }
         virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ2_bestUncompressSpeed; }
-        virtual int getNozipLengthOutBitLength(int nozipLength)const{ return pack32BitWithHalfByteOutBitCount(nozipLength-1); }
-        virtual int getZipLengthOutBitLength(int zipLength)const{ return pack32BitWithHalfByteOutBitCount(zipLength-getMinMatchLength()); }
-        virtual int getForwardOffsertOutBitLength(int curPos,int matchPos)const{ return 8*pack32BitWithTagOutSize(curPos-matchPos-1,0); }
+        virtual int getNozipLengthOutBitLength(int nozipLength)const{ assert(nozipLength>=1); return kFRZ2CodeType_bit+pack32BitWithHalfByteOutBitCount(nozipLength-1); }
         
         void write_code(TFRZ_Buffer& out_code)const{
             pack32Bit(out_code,m_ctrlCount);

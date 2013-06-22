@@ -86,7 +86,7 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
     }
     
     const int kMaxValue_lcp=((TFRZ_UInt32)1<<31)-1;
-    const int kMinZipLoseBitLength=1*8+out_FRZCode.getNozipLengthOutBitLength(1);
+    const int kMinZipLoseBitLength=8*out_FRZCode.getMinMatchLength()-out_FRZCode.getZipBitLength(out_FRZCode.getMinMatchLength());
     const int kMaxSearchDeepSize=2048;//加大可以提高一点压缩率,但可能降低压缩速度.
     int lcp=kMaxValue_lcp;
     for (int deep=kMaxSearchDeepSize;(deep>0)&&(it!=it_end);it+=it_inc,LCP+=it_inc,--deep){
@@ -101,7 +101,7 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
         const int curForwardOffsert=(curString-matchString);
         if (curForwardOffsert>0){
             --deep;
-            TFRZ_Int32 zipedBitLength=lcp*8-out_FRZCode.getZipLengthOutBitLength(lcp)-out_FRZCode.getForwardOffsertOutBitLength(curString, matchString);
+            TFRZ_Int32 zipedBitLength=out_FRZCode.getZipBitLength(lcp,curString,matchString);
             if (curForwardOffsert>kMaxForwardOffsert){//惩罚.
                 zipedBitLength-=8*8+4;
                 if (curForwardOffsert>kMaxForwardOffsert*2)
@@ -142,9 +142,11 @@ bool TFRZBestZiper::getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStri
     // + pksize(allLength-noZipLength-zipLength)+ allLength-noZipLength-zipLength
     // < pksize(allLength)+allLength + zip_parameter
     //~=> zipLength - pksize(zipLength)-pksize(ForwardOffsertInfo) > zip_parameter + pksize(noZipLength)
-    int minZipBitLength=zip_parameter*8+7;//最少要压缩的bit数.
-    if (noZipLength>0)
-        minZipBitLength+=out_FRZCode.getNozipLengthOutBitLength(1);
+    int minZipBitLength=out_FRZCode.getZipBitLength(out_FRZCode.getMinMatchLength())-1;//最少要压缩的bit数.
+    if (noZipLength==0)
+        minZipBitLength-=out_FRZCode.getNozipLengthOutBitLength(1);
+    if (minZipBitLength<=0) minZipBitLength=1;
+    
     *out_curBestZipBitLength=minZipBitLength;
     *out_curBestMatchPos=-1;
     *out_curBestMatchLength=0;
