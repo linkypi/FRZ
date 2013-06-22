@@ -39,10 +39,10 @@ enum TFRZ2CodeType{
 static const int kFRZ2CodeType_bit=1;
 
 
-frz_BOOL FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_end,
+frz_BOOL _beta_FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_end,
                               const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
-frz_BOOL FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
+frz_BOOL _beta_FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
                               const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
 #ifdef __cplusplus

@@ -61,6 +61,7 @@ static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithTag_NAME(const TFRZ_Byte**
 frz_BOOL _PRIVATE_FRZ1_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end){
     const TFRZ_Byte* ctrlBuf;
     const TFRZ_Byte* ctrlBuf_end;
+    const TFRZ_Byte* src_data;
     TFRZ_UInt32 ctrlSize;
     TFRZ_UInt32 length;
     TFRZ_UInt32 frontMatchPos;
@@ -89,20 +90,22 @@ frz_BOOL _PRIVATE_FRZ1_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
                 if ((frontMatchPos==0)||(frontMatchPos>(TFRZ_UInt32)(out_data-_out_data_begin))) return frz_FALSE;
 #endif
-                if (length<=frontMatchPos)
-                    memcpy_tiny(out_data,out_data-frontMatchPos,length);
-                else
-                    memcpy_order(out_data,out_data-frontMatchPos,length);//warning!! can not use memmove
                 out_data+=length;
+                src_data=out_data-frontMatchPos;
+                if (length<=frontMatchPos){
+                    memcpy_tiny_end(out_data,src_data,length);
+                }else{
+                    memcpy_order_end(out_data,src_data,length);//warning!! can not use memmove
+                }
                 continue; //while
             }break;
             case kFRZ1CodeType_nozip:{
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
                 if (length>(TFRZ_UInt32)(zip_code_end-zip_code)) return frz_FALSE;
 #endif
-                memcpy_tiny(out_data,zip_code,length);
-                zip_code+=length;
                 out_data+=length;
+                zip_code+=length;
+                memcpy_tiny_end(out_data,zip_code,length);
                 continue; //while
             }break;
         }

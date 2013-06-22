@@ -26,55 +26,84 @@
  */
 #ifdef _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
 
-//变长32bit正整数编码方案,从高位开始输出1-6byte:
-// 0*  3 bit
-// 1* 0*  3+3 bit
-// 1* 1* 0*  3+3+3 bit
-// 1* 1* 1* 0*  3+3+3+3 bit
-// 1* 1* 1* 1* 0*  3+3+3+3+3 bit
-//...
+//变长10bit正整数编码方案,从高位开始输出0.5--1.5byte:
+// 0*  3     bit
+// 10  2+4   bit
+// 11  2+4+4 bit
 static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME(const TFRZ_Byte** src_code,const TFRZ_Byte* src_code_end,TFRZ_UInt32* _halfByte){//读出整数并前进指针.
-    const TFRZ_Byte* pcode;
     TFRZ_UInt32 value;
     TFRZ_UInt32 code;
-    int halfByte;
+    TFRZ_UInt32 codeNext;
+    const TFRZ_Byte* pcode;
+    code=*_halfByte;
     pcode=*src_code;
-    halfByte=*_halfByte;
-    value=0;
-    if (halfByte){
-        code=halfByte;
-        halfByte=0;
-        value=(code&((1<<3)-1));
-        if (!(code&(1<<3))){
-            (*src_code)=pcode;
-            (*_halfByte)=0;
-            return value;
+    if (code==0){
+#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
+        if (pcode>=src_code_end) return 0;
+#endif
+        code=pcode[0]; ++pcode;
+        switch (code>>6) {
+            case 3:{
+#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
+                if (pcode>=src_code_end) return 0;
+#endif
+                codeNext=*pcode;
+                (*src_code)=pcode+1;
+                (*_halfByte)=codeNext | (15<<4);
+                value=((code&((1<<6)-1))<<4) | (codeNext>>4);
+                return value+(8+64);
+            }
+            case 2:{
+                (*src_code)=pcode;
+                //(*_halfByte)=0;
+                value=(code&((1<<6)-1));
+                return value+(8);
+            }
+            case 1:
+            case 0:{
+                (*src_code)=pcode;
+                (*_halfByte)=code | (15<<4);
+                return (code>>4);
+            }
+        }
+    }else{
+        code&=15;
+        switch (code>>2) {
+            case 3:{
+#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
+                if (pcode>=src_code_end) return 0;
+#endif
+                (*src_code)=pcode+1;
+                (*_halfByte)=0;
+                value=((code&3)<<8) | (*pcode);
+                return value+(8+64);
+            }
+            case 2:{
+#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
+                if (pcode>=src_code_end) return 0;
+#endif
+                codeNext=*pcode;
+                (*src_code)=pcode+1;
+                (*_halfByte)=codeNext | (15<<4);
+                value=((code&3)<<4) | (codeNext>>4);
+                return value+(8);
+            }
+            case 1:
+            case 0:{
+                //(*src_code)=pcode;
+                (*_halfByte)=0;
+                return code;
+            }
         }
     }
-    
-    //assert(halfByte==0);
-    do {
-#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-        //assert((value>>(sizeof(value)*8-3))==0);
-        if (pcode>=src_code_end) break;
-#endif
-        code=*pcode; ++pcode;
-        value=(value<<3) | ((code>>4)&((1<<3)-1));
-        if (code&(1<<(3+4))){
-            value=(value<<3) | (code&((1<<3)-1));
-        }else{
-            halfByte=code | (15<<4);
-            break;
-        }
-    } while (code&(1<<3));
-    (*src_code)=pcode;
-    (*_halfByte)=halfByte;
-    return value;
+    //assert(false);
+    return 0;
 }
 
 
 frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end){
     const TFRZ_Byte* ctrlBuf;
+    const TFRZ_Byte* src_data;
     //const TFRZ_Byte* ctrlBuf_end;
     const TFRZ_Byte* ctrlHalfLengthBuf;
     const TFRZ_Byte* ctrlHalfLengthBuf_end;
@@ -136,11 +165,13 @@ frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
                 if ((length==0)||(length>(TFRZ_UInt32)(out_data_end-out_data))) return frz_FALSE;
                 if ((frontMatchPos==0)||(frontMatchPos>(TFRZ_UInt32)(out_data-_out_data_begin))) return frz_FALSE;
 #endif
-                if (length<=frontMatchPos)
-                    memcpy_tiny(out_data,out_data-frontMatchPos,length);
-                else
-                    memcpy_order(out_data,out_data-frontMatchPos,length);//warning!! can not use memmove
                 out_data+=length;
+                src_data=out_data-frontMatchPos;
+                if(length<=frontMatchPos) {
+                    memcpy_tiny_end(out_data,src_data,length);
+                }else{
+                    memcpy_order_end(out_data,src_data,length);//warning!! can not use memmove
+                }
                 continue; //for
             }break;
             case kFRZ2CodeType_nozip:{
@@ -148,10 +179,10 @@ frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
                 if ((length==0)||(length>(TFRZ_UInt32)(out_data_end-out_data))) return frz_FALSE;
                 if (length>(TFRZ_UInt32)(zip_code_end-zip_code)) return frz_FALSE;
-#endif
-                memcpy_tiny(out_data,zip_code,length);
-                zip_code+=length;
+#endif                
                 out_data+=length;
+                zip_code+=length;
+                memcpy_tiny_end(out_data,zip_code,length);
                 continue; //for
             }break;
         }
