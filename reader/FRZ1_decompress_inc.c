@@ -92,23 +92,21 @@ frz_BOOL _PRIVATE_FRZ1_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
 #endif
                 out_data+=length;
                 src_data=out_data-frontMatchPos;
-                if (length<=frontMatchPos){
-                    memcpy_tiny_end(out_data,src_data,length);
-                }else{
+                if (length>frontMatchPos){
                     memcpy_order_end(out_data,src_data,length);//warning!! can not use memmove
+                    continue; //while
                 }
-                continue; //while
             }break;
             case kFRZ1CodeType_nozip:{
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
                 if (length>(TFRZ_UInt32)(zip_code_end-zip_code)) return frz_FALSE;
 #endif
-                out_data+=length;
                 zip_code+=length;
-                memcpy_tiny_end(out_data,zip_code,length);
-                continue; //while
+                out_data+=length;
+                src_data=zip_code;
             }break;
         }
+        memcpy_tiny64_end(out_data,src_data,length);
     }
     return (ctrlBuf==ctrlBuf_end)&&(zip_code==zip_code_end)&&(out_data==out_data_end);
 }

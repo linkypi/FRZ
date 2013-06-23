@@ -73,7 +73,7 @@ namespace {
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     assert(zip_parameter>=kFRZ1_bestSize);
     assert(zip_parameter<=kFRZ1_bestUncompressSpeed);
-    assert(src_end-src<=((1<<31)-1));
+    assert(src_end-src<=(((unsigned int)1<<31)-1));
     assert(compress_step_count>=1);
     const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);
     assert((stepMemSize>0)||(src_end==src));

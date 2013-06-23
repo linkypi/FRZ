@@ -114,6 +114,7 @@ frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
     TFRZ_UInt32 ctrlHalfLengthBufSize;
     TFRZ_UInt32 frontMatchPosBufSize;
     TFRZ_UInt32 kMinMatchLength;
+    TFRZ_UInt32 frontMatchPos;
     TFRZ_UInt32 length;
     TFRZ_UInt32 halfByte;
     enum TFRZ2CodeType type;
@@ -160,19 +161,17 @@ frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
         switch (type){
             case kFRZ2CodeType_zip:{
                 length+=kMinMatchLength;
-                const TFRZ_UInt32 frontMatchPos= 1 + _PRIVATE_FRZ_unpack32BitWithTag_NAME(&frontMatchPosBuf,frontMatchPosBuf_end,0);
+                frontMatchPos= 1 + _PRIVATE_FRZ_unpack32BitWithTag_NAME(&frontMatchPosBuf,frontMatchPosBuf_end,0);
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
                 if ((length==0)||(length>(TFRZ_UInt32)(out_data_end-out_data))) return frz_FALSE;
                 if ((frontMatchPos==0)||(frontMatchPos>(TFRZ_UInt32)(out_data-_out_data_begin))) return frz_FALSE;
 #endif
                 out_data+=length;
                 src_data=out_data-frontMatchPos;
-                if(length<=frontMatchPos) {
-                    memcpy_tiny_end(out_data,src_data,length);
-                }else{
+                if (length>frontMatchPos){
                     memcpy_order_end(out_data,src_data,length);//warning!! can not use memmove
+                    continue; //while
                 }
-                continue; //for
             }break;
             case kFRZ2CodeType_nozip:{
                 ++length;
@@ -180,12 +179,12 @@ frz_BOOL _PRIVATE_FRZ2_DECOMPRESS_NAME(unsigned char* out_data,unsigned char* ou
                 if ((length==0)||(length>(TFRZ_UInt32)(out_data_end-out_data))) return frz_FALSE;
                 if (length>(TFRZ_UInt32)(zip_code_end-zip_code)) return frz_FALSE;
 #endif                
-                out_data+=length;
                 zip_code+=length;
-                memcpy_tiny_end(out_data,zip_code,length);
-                continue; //for
+                out_data+=length;
+                src_data=zip_code;
             }break;
         }
+        memcpy_tiny64_end(out_data,src_data,length);
     }
     return (zip_code==zip_code_end)&&(out_data==out_data_end)&&(frontMatchPosBuf==frontMatchPosBuf_end)
                 &&(ctrlHalfLengthBuf_end==ctrlHalfLengthBuf);

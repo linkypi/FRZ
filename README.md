@@ -1,6 +1,6 @@
 FRZ
 ========
-Version  1.0 
+Version  1.0.1 
   
 ---
 FRZ: fast decompress arithmetic.  

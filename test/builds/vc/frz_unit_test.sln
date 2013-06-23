@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frz_unit_test", "frz_unit_test.vcxproj", "{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Debug|Win32.Build.0 = Debug|Win32
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Debug|x64.ActiveCfg = Debug|x64
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Debug|x64.Build.0 = Debug|x64
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Release|Win32.ActiveCfg = Release|Win32
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Release|Win32.Build.0 = Release|Win32
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Release|x64.ActiveCfg = Release|x64
+		{97D1F80A-6CE0-432D-A3D9-080677BFB3EB}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

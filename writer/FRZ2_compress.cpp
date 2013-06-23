@@ -65,7 +65,7 @@ namespace {
     }
     
     inline static int pack32BitWithHalfByteOutBitCount(TFRZ_UInt32 iValue){//返回pack后字节大小.
-        if (iValue>kPack32BitWithHalfByteMaxValue)
+        if (iValue>(TFRZ_UInt32)kPack32BitWithHalfByteMaxValue)
             return 4*3+pack32BitWithHalfByteOutBitCount(iValue-kPack32BitWithHalfByteMaxValue);
         
         int codeCount=0;
@@ -135,7 +135,7 @@ namespace {
             pack32Bit(m_frontMatchPosCode,frontMatchPos-1);
         }
         
-        virtual int getMinMatchLength()const { return 3+zip_parameter(); }
+        virtual int getMinMatchLength()const { return 3+zip_parameter(); } //2的话可以压缩的更小,但压缩效率过低,影响解压缩度.
         virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
             assert(matchLength>=getMinMatchLength());
             if (curString<0){ curString=1; matchString=0; }
@@ -181,7 +181,7 @@ namespace {
 void _beta_FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     assert(zip_parameter>=kFRZ2_bestSize);
     assert(zip_parameter<=kFRZ2_bestUncompressSpeed);
-    assert(src_end-src<=((1<<31)-1));
+    assert(src_end-src<=(((unsigned int)1<<31)-1));
     assert(compress_step_count>=1);
     const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);
     assert((stepMemSize>0)||(src_end==src));

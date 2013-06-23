@@ -41,8 +41,8 @@ static int test(const unsigned char* src,const unsigned char* src_end,const char
 }
 static void testFRZ(const unsigned char* src,const unsigned char* src_end,const char* tag){
     sum_src_size+=src_end-src;
-    sum_frz1_size+=test(src,src_end,tag,FRZ1_compress,"FRZ1_compress",FRZ1_decompress,"FRZ1_decompress");
-    sum_frz2_size+=test(src,src_end,tag,_beta_FRZ2_compress,"FRZ2_compress",_beta_FRZ2_decompress,"FRZ2_decompress");
+    sum_frz1_size+=test(src,src_end,tag,FRZ1_compress,"FRZ1_compress",FRZ1_decompress_safe,"FRZ1_decompress_safe");
+    sum_frz2_size+=test(src,src_end,tag,_beta_FRZ2_compress,"FRZ2_compress",_beta_FRZ2_decompress_safe,"FRZ2_decompress_safe");
 }
 
 static void testFRZ(const char* src,const char* tag){
@@ -69,9 +69,9 @@ int main(int argc, const char * argv[]){
     testFRZ("23454645756879234135464575686778233425346457657685723534645765876876876978987234235435465476587698797436547658763254364575647568","tag13");
     
     
-    const int kRandTestCount=1000;
-    const int kMaxDataSize=1024*64;
-    const int kMaxCopyCount=1024;
+    const int kRandTestCount=10000;
+    const int kMaxDataSize=1024*65;
+    const int kMaxCopyCount=5000;
     std::vector<int> seeds(kRandTestCount);
     //srand( (unsigned int)time(0) );
     for (int i=0; i<kRandTestCount; ++i)
@@ -88,16 +88,16 @@ int main(int argc, const char * argv[]){
         unsigned char* srcData=0; if (!_srcData.empty()) srcData=&_srcData[0];
         for (int i=0; i<srcSize; ++i)
             srcData[i]=rand();
-        const int copyCount=rand()*(1.0/RAND_MAX)*kMaxCopyCount;
-        const int kMaxCopyLength=1+pow(rand()*(1.0/RAND_MAX),2)*srcSize*0.7;
+        const int copyCount=(int)(rand()*(1.0/RAND_MAX)*kMaxCopyCount);
+        const int kMaxCopyLength=1+(int)(pow(rand()*(1.0/RAND_MAX),3)*srcSize*0.3);
         for (int i=0; i<copyCount; ++i) {
-            const int length=1+(int)(pow(rand()*(1.0/RAND_MAX),3)*kMaxCopyLength);
+            const int length=2+(int)(pow(rand()*(1.0/RAND_MAX),6)*kMaxCopyLength);
             if (length>=srcSize) {
                 continue;
             }
             const int oldPos=rand()%(srcSize-length);
             const int newPos=rand()%(srcSize-length);
-            memcpy(&srcData[0]+newPos, &srcData[0]+oldPos, length);
+            memmove(&srcData[0]+newPos, &srcData[0]+oldPos, length);
         }
         testFRZ(&srcData[0],&srcData[0]+srcSize,tag);
     }
@@ -106,6 +106,6 @@ int main(int argc, const char * argv[]){
     std::cout <<"  FRZ1_compress "<<" sum frz1Size/srcSize:"<<sum_frz1_size/sum_src_size<<"\n";
     std::cout <<"  FRZ2_compress "<<" sum frz2Size/srcSize:"<<sum_frz2_size/sum_src_size<<"\n";
     std::cout << "\ndone!\n";
-    return 0;
+    return error_count;
 }
 

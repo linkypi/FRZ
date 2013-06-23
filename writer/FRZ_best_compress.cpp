@@ -110,7 +110,7 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
             if (zipedBitLength<curBestZipBitLength) continue;
             
             if((zipedBitLength>curBestZipBitLength) ||(matchString>curBestMatchString)){
-                   deep-=(kMaxSearchDeepSize/32);
+                   deep-=(kMaxSearchDeepSize/64);
                    curBestZipBitLength=zipedBitLength;
                    curBestMatchString=matchString;
                    curBestMatchLength=lcp;
@@ -143,8 +143,8 @@ bool TFRZBestZiper::getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStri
     // < pksize(allLength)+allLength + zip_parameter
     //~=> zipLength - pksize(zipLength)-pksize(ForwardOffsertInfo) > zip_parameter + pksize(noZipLength)
     int minZipBitLength=out_FRZCode.getZipBitLength(out_FRZCode.getMinMatchLength())-1;//最少要压缩的bit数.
-    if (noZipLength==0)
-        minZipBitLength-=out_FRZCode.getNozipLengthOutBitLength(1);
+    if (noZipLength>0)
+        minZipBitLength+=out_FRZCode.getNozipLengthOutBitLength(1);
     if (minZipBitLength<=0) minZipBitLength=1;
     
     *out_curBestZipBitLength=minZipBitLength;
