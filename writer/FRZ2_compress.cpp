@@ -135,13 +135,12 @@ namespace {
             pack32Bit(m_frontMatchPosCode,frontMatchPos-1);
         }
         
-        virtual int getMinMatchLength()const { return 3+zip_parameter(); } //2的话可以压缩的更小,但压缩效率过低,影响解压缩度.
+        virtual int getMinMatchLength()const { return 3+zip_parameter(); } //2的话很多情况下可以压缩的更小,但可能影响解压速度.
         virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
             assert(matchLength>=getMinMatchLength());
             if (curString<0){ curString=1; matchString=0; }
             return 8*matchLength-(kFRZ2CodeType_bit+8*pack32BitWithTagOutSize(curString-matchString-1,0)+pack32BitWithHalfByteOutBitCount(matchLength-getMinMatchLength()));
         }
-        virtual int getMinZipBitLength()const {  return getMinMatchLength()*8-(kFRZ2CodeType_bit+1*4+1*8); }
         virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ2_bestUncompressSpeed; }
         virtual int getNozipLengthOutBitLength(int nozipLength)const{ assert(nozipLength>=1); return kFRZ2CodeType_bit+pack32BitWithHalfByteOutBitCount(nozipLength-1); }
         
