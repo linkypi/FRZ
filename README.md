@@ -9,9 +9,10 @@ _FRZ是一种无损压缩算法，它只为了优化解码速度!_
    
 ---
 ```
-ZIP: 用的zlib库,版本ZLIB_VERSION "1.2.5" ;参数: 1,6,9
-                LZO: minilzo-2.06 , lzo1x_1_compress,lzo1x_11_compress,..,lzo1x_999_compress
-                FRZ: FRZ1_compress FRZ2_compress; 参数: 0,1,2,4,7,16
+  测试文件: http://www.maximumcompression.com/data/files/index.html 
+  ZIP: 用的zlib库,版本ZLIB_VERSION "1.2.5" ;参数: 1,6,9
+  LZO: minilzo-2.06 , lzo1x_1_compress,lzo1x_11_compress,..,lzo1x_999_compress
+  FRZ: FRZ1_compress FRZ2_compress; 参数: 0,1,2,4,7,16
 ============================================================================================
  fileName   fileSize compressProc compressTime compressRatio uncompressTime uncompressSpeed
 --------------------------------------------------------------------------------------------
@@ -208,7 +209,7 @@ ohs.doc      3.975M    frz2_7        0.534132S    24.2947%    0.0014706S      27
 ohs.doc      3.975M    frz2_16       0.494384S    27.4041%    0.00103207S     3851.59M/S
 ============================================================================================
 ```
-    
+   
 ---
 by HouSisong@Gmail.com
 
