@@ -113,9 +113,6 @@ TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char
 }
 
 
-static void outResult_begin(){
-    
-}
 static void outResult(const TTestResult& rt){
     std::cout<<"\""<<rt.srcFileName<<"\"\t";
     std::cout<<rt.srcSize/1024.0/1024<<"M\t";
@@ -160,7 +157,6 @@ static void testFile(const char* srcFileName){
 }
 
 int main(){
-    std::vector<TTestResult> outResults;
     testFile("world95.txt");
     testFile("FP.LOG");
     testFile("ohs.doc");
