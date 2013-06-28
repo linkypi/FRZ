@@ -52,7 +52,7 @@ typedef unsigned int    TFRZ_UInt32;
     
 #define frz_BOOL    int
 #define frz_FALSE   0
-//#define frz_TRUE    (!frz_FALSE)
+#define frz_TRUE    (!frz_FALSE)
 
 #ifdef __cplusplus
 }

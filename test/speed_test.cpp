@@ -2,7 +2,6 @@
 //  unit_test.cpp
 //  for FRZ
 //
-
 #include <iostream>
 #include <string.h>
 #include <math.h>
@@ -15,12 +14,17 @@
 #include "zlib.h"
 
 
+#ifdef _IOS
+std::string TEST_FILE_DIR =std::string(getSourcesPath())+"/testFRZ/";
+#else
+std::string TEST_FILE_DIR ="/Users/Shared/test/testFRZ/";
+#endif
+
+
 void zip_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
 int zip_decompress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end);
 void lzo_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
 int lzo_decompress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* lzo_code,const unsigned char* lzo_code_end);
-
-const char* TEST_FILE_DIR ="/Users/Shared/test/testFRZ/";
 
 void readFile(std::vector<unsigned char>& data,const char* fileName){
     FILE	* file=fopen(fileName, "rb");
@@ -80,7 +84,7 @@ double testDecodeProc(T_decompress proc_decompress,unsigned char* out_data,unsig
 TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char* proc_compress_Name,
                  T_decompress proc_decompress,const char* proc_decompress_Name,int zip_parameter){
     
-    std::vector<unsigned char> oldData; readFile(oldData,(std::string(TEST_FILE_DIR)+srcFileName).c_str());
+    std::vector<unsigned char> oldData; readFile(oldData,(TEST_FILE_DIR+srcFileName).c_str());
     const unsigned char* src=&oldData[0];
     const unsigned char* src_end=src+oldData.size();
     
@@ -124,7 +128,7 @@ static void outResult(const TTestResult& rt){
 }
 
 
-static void testFile(const char* srcFileName){
+static void testFile(const char* srcFileName){    
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",6));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",1));
@@ -142,7 +146,6 @@ static void testFile(const char* srcFileName){
     outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",2));
     outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",4));
     outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",7));
-    outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",16));
     std::cout << "\n";
     
     outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",0));
@@ -150,23 +153,23 @@ static void testFile(const char* srcFileName){
     outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",2));
     outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",4));
     outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",7));
-    outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",16));
     std::cout << "\n";
-
+    
     std::cout << "\n";
 }
 
 int main(){
+    std::cout << "start> \n";
     testFile("world95.txt");
-    testFile("FP.LOG");
     testFile("ohs.doc");
+    testFile("FP.LOG");
     testFile("A10.jpg");
-    testFile("AcroRd32.exe");
-    testFile("MSO97.DLL");
     testFile("rafale.bmp");
-    testFile("english.dic");
     testFile("FlashMX.pdf");
     testFile("vcfiu.hlp");
+    testFile("AcroRd32.exe");
+    testFile("MSO97.DLL");
+    testFile("english.dic");
     
     std::cout << "done!\n";
     return 0;

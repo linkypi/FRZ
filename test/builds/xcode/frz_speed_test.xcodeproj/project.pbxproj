@@ -93,6 +93,7 @@
 		80D1E6791779C9A200F76F60 /* trees.c in Sources */ = {isa = PBXBuildFile; fileRef = 80D1E66A1779C9A200F76F60 /* trees.c */; };
 		80D1E67A1779C9A200F76F60 /* uncompr.c in Sources */ = {isa = PBXBuildFile; fileRef = 80D1E66C1779C9A200F76F60 /* uncompr.c */; };
 		80D1E67B1779C9A200F76F60 /* zutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 80D1E66F1779C9A200F76F60 /* zutil.c */; };
+		80FC4F54177B1B21008313C6 /* FRZ_table_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80FC4F52177B1B21008313C6 /* FRZ_table_compress.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -268,6 +269,8 @@
 		80D1E66E1779C9A200F76F60 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
 		80D1E66F1779C9A200F76F60 /* zutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zutil.c; sourceTree = "<group>"; };
 		80D1E6701779C9A200F76F60 /* zutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zutil.h; sourceTree = "<group>"; };
+		80FC4F52177B1B21008313C6 /* FRZ_table_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_table_compress.cpp; sourceTree = "<group>"; };
+		80FC4F53177B1B21008313C6 /* FRZ_table_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_table_compress.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -326,6 +329,8 @@
 		800942B71778A3A7002B8267 /* writer */ = {
 			isa = PBXGroup;
 			children = (
+				80FC4F52177B1B21008313C6 /* FRZ_table_compress.cpp */,
+				80FC4F53177B1B21008313C6 /* FRZ_table_compress.h */,
 				800942B81778A3A7002B8267 /* FRZ1_compress.cpp */,
 				800942B91778A3A7002B8267 /* FRZ1_compress.h */,
 				800942BA1778A3A7002B8267 /* FRZ2_compress.cpp */,
@@ -667,6 +672,7 @@
 				80D1E6791779C9A200F76F60 /* trees.c in Sources */,
 				80D1E67A1779C9A200F76F60 /* uncompr.c in Sources */,
 				80D1E67B1779C9A200F76F60 /* zutil.c in Sources */,
+				80FC4F54177B1B21008313C6 /* FRZ_table_compress.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

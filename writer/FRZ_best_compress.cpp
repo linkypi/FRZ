@@ -28,10 +28,10 @@
 namespace {
     static const int _kMaxForwardOffsert_zip_parameter_table_size=8+1;
     static const int _kMaxForwardOffsert_zip_parameter_table[_kMaxForwardOffsert_zip_parameter_table_size]={
-        8*1024*1024, 6*1024*1024, 4*1024*1024, 2*1024*1024, 1*1024*1024, //0..4
-        880*1024,780*1024,700*1024,600*1024//5..8
+        960*1024,840*1024,720*1024,600*1024, 500*1024, //0..4
+        420*1024,340*1024,300*1024,280*1024//5..8
     };
-    static const int _kMaxForwardOffsert_zip_parameter_table_minValue=200*1024;
+    static const int _kMaxForwardOffsert_zip_parameter_table_minValue=150*1024;
 }
 
 TFRZBestZiper::TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end)
@@ -87,7 +87,7 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
     
     const int kMaxValue_lcp=((TFRZ_UInt32)1<<31)-1;
     const int kMinZipLoseBitLength=8*out_FRZCode.getMinMatchLength()-out_FRZCode.getZipBitLength(out_FRZCode.getMinMatchLength());
-    const int kMaxSearchDeepSize=2048;//加大可以提高一点压缩率,但可能降低压缩速度.
+    const int kMaxSearchDeepSize=1024*4;//加大可以提高一点压缩率,但可能降低压缩速度.
     int lcp=kMaxValue_lcp;
     for (int deep=kMaxSearchDeepSize;(deep>0)&&(it!=it_end);it+=it_inc,LCP+=it_inc,--deep){
         int curLCP=*LCP;
@@ -103,9 +103,12 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
             --deep;
             TFRZ_Int32 zipedBitLength=out_FRZCode.getZipBitLength(lcp,curString,matchString);
             if (curForwardOffsert>kMaxForwardOffsert){//惩罚.
-                zipedBitLength-=8*8+4;
-                if (curForwardOffsert>kMaxForwardOffsert*2)
-                    zipedBitLength-=16*8+4;
+                zipedBitLength-=8+4;
+                if (curForwardOffsert>kMaxForwardOffsert*2){
+                    zipedBitLength-=4*8+4;
+                    if (curForwardOffsert>kMaxForwardOffsert*4)
+                        zipedBitLength-=8*8+4;
+                }
             }
             if (zipedBitLength<curBestZipBitLength) continue;
             

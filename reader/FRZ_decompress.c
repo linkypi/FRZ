@@ -55,7 +55,7 @@ extern "C" {
 #endif
     
     typedef struct TFRZ_data_16Bit {
-    #ifndef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
+    #ifdef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
         TFRZ_UInt16     _data;
     #else
         unsigned char   _data[2];
@@ -63,7 +63,7 @@ extern "C" {
     } TFRZ_data_16Bit;
     
     typedef struct TFRZ_data_32Bit {
-    #ifndef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
+    #ifdef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
         TFRZ_UInt32     _data;
     #else
         unsigned char   _data[4];
@@ -71,7 +71,7 @@ extern "C" {
     } TFRZ_data_32Bit;
     
     typedef struct TFRZ_data_64Bit {
-    #ifndef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
+    #ifdef FRZ_DECOMPRESS_MEM_NOTMUST_ALIGN
         void*           _data[8/sizeof(void*)];
     #else
         unsigned char   _data[8];
