@@ -39,14 +39,9 @@ void FRZ1_compress(std::vector<unsigned char>& out_code,
                    const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
 //工具函数:按可用的最大内存计算比较合适的compress_step_count值.
-static inline int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize) {
-    assert(allCanUseMemrey_MB*(1024*1024/14)>=3*srcDataSize/14);
-    int result=srcDataSize/(allCanUseMemrey_MB*(1024*1024/14)-2*srcDataSize/14);
-    if (result<1) result=1;
-    return result;
-}
+int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize);
 
-//节约内存的压缩; 如果调用FRZ1_compress时内存不够,可以改掉用FRZ1_compress_limitMemery,解码器不变; 函数实现时分成COMPRESS_STEP_COUNT个块分别压缩.
+//节约内存的压缩; 如果调用FRZ1_compress时内存不够,可以改掉用FRZ1_compress_limitMemery,解码器不变; 函数实现时分成compress_step_count个块分别压缩.
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,
                                const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 

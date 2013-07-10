@@ -177,21 +177,14 @@ namespace {
 
 } //end namespace
 
+int FRZ2_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize){
+    return TFRZBestZiper::compress_limitMemery_get_compress_step_count(allCanUseMemrey_MB, srcDataSize);
+}
 void _beta_FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     assert(zip_parameter>=kFRZ2_bestSize);
     assert(zip_parameter<=kFRZ2_bestUncompressSpeed);
-    assert(src_end-src<=(((unsigned int)1<<31)-1));
-    assert(compress_step_count>=1);
-    const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);
-    assert((stepMemSize>0)||(src_end==src));
-    
     TFRZ2Code FRZ2Code(zip_parameter);
-    for (const unsigned char* step_src=src; step_src<src_end; step_src+=stepMemSize) {
-        const unsigned char* step_src_end=step_src+stepMemSize;
-        if (step_src_end>src_end)
-            step_src_end=src_end;
-        TFRZBestZiper FRZBestZiper(FRZ2Code,step_src,step_src_end);
-    }
+    TFRZBestZiper::compress_by_step(FRZ2Code,compress_step_count,src,src_end);
     FRZ2Code.write_code(out_code);
 }
 

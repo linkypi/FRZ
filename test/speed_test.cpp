@@ -8,6 +8,7 @@
 #include <time.h>
 #include "../writer/FRZ1_compress.h"
 #include "../writer/FRZ2_compress.h"
+//#include "../writer/FRZ_table_compress.h"
 #include "../reader/FRZ1_decompress.h"
 #include "../reader/FRZ2_decompress.h"
 #include "lzo1x.h"
@@ -128,7 +129,8 @@ static void outResult(const TTestResult& rt){
 }
 
 
-static void testFile(const char* srcFileName){    
+static void testFile(const char* srcFileName){
+    
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",6));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",1));
@@ -160,6 +162,7 @@ static void testFile(const char* srcFileName){
 
 int main(){
     std::cout << "start> \n";
+    
     testFile("world95.txt");
     testFile("ohs.doc");
     testFile("FP.LOG");

@@ -34,21 +34,26 @@ namespace {
     static const int _kMaxForwardOffsert_zip_parameter_table_minValue=150*1024;
 }
 
-TFRZBestZiper::TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end)
-:m_sstring((const char*)src,(const char*)src_end){
-    m_sstring.R_create();
-    m_sstring.LCP_create();
-    createCode(out_FRZCode);
-    m_sstring.R.clear();
-    m_sstring.LCP.clear();
+TFRZBestZiper::TFRZBestZiper(const TFRZ_Byte* src,const TFRZ_Byte* src_end)
+  :m_sstring((const char*)src,(const char*)src_end){
 }
-void TFRZBestZiper::createCode(TFRZCode_base& out_FRZCode){
+
+const TFRZ_Byte* TFRZBestZiper::getCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kcanNotZipLength){
+    m_sstring.R_create();
+    m_sstring.LCPLite_create_withR();
+    const TFRZ_Byte* result=createCode(out_FRZCode,src_cur,kcanNotZipLength);
+    m_sstring.LCPLite.clear();
+    m_sstring.R.clear();
+    return result;
+}
+
+const TFRZ_Byte* TFRZBestZiper::createCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kcanNotZipLength){
     out_FRZCode.pushDataInit((const TFRZ_Byte*)m_sstring.ssbegin,(const TFRZ_Byte*)m_sstring.ssend);
     const int sstrSize=(int)m_sstring.size();
     
-    TFRZ_Int32 nozipBegin=0;
-    TFRZ_Int32 curIndex=1;
-    while (curIndex<sstrSize) {
+    TFRZ_Int32 nozipBegin=(TFRZ_Int32)(src_cur-(const TFRZ_Byte*)m_sstring.ssbegin);
+    TFRZ_Int32 curIndex=nozipBegin+1;
+    while (curIndex<sstrSize-(kcanNotZipLength>>1)) {
         TFRZ_Int32 matchLength;
         TFRZ_Int32 matchPos;
         TFRZ_Int32 zipBitLength;
@@ -66,7 +71,15 @@ void TFRZBestZiper::createCode(TFRZCode_base& out_FRZCode){
         }
     }
     if (nozipBegin<sstrSize){
-        out_FRZCode.pushNoZipData(nozipBegin,(TFRZ_Int32)sstrSize);
+        //剩余的可以交给下一次处理.
+        if (sstrSize-nozipBegin<=kcanNotZipLength){
+            return (const TFRZ_Byte*)m_sstring.ssbegin+nozipBegin;
+        }else{
+            out_FRZCode.pushNoZipData(nozipBegin,(TFRZ_Int32)sstrSize-(kcanNotZipLength>>1));
+            return (const TFRZ_Byte*)m_sstring.ssend-(kcanNotZipLength>>1);
+        }
+    }else{
+        return (const TFRZ_Byte*)m_sstring.ssend; //finish
     }
 }
 
@@ -75,14 +88,14 @@ void TFRZBestZiper::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStr
     const TFRZ_Int32 it_cur=m_sstring.lower_bound_withR(curString);//查找curString自己的位置.
     int it=it_cur+it_inc;
     int it_end;
-    const TFRZ_Int32* LCP;//当前的后缀字符串和下一个后缀字符串的相等长度.
+    const TSuffixString::TUShort* LCP;//当前的后缀字符串和下一个后缀字符串的相等长度.
     if (it_inc==1){
         it_end=(int)m_sstring.size();
-        LCP=&m_sstring.LCP[it_cur];
+        LCP=&m_sstring.LCPLite[it_cur];
     }else{
         assert(it_inc==-1);
         it_end=-1;
-        LCP=&m_sstring.LCP[it_cur]-1;
+        LCP=&m_sstring.LCPLite[it_cur]-1;
     }
     
     const int kMaxValue_lcp=((TFRZ_UInt32)1<<31)-1;
@@ -159,3 +172,34 @@ bool TFRZBestZiper::getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curStri
     return (((*out_curBestMatchPos)>=0)&&((*out_curBestMatchLength)>=out_FRZCode.getMinMatchLength()));
 }
 
+
+
+void TFRZBestZiper::compress_by_step(TFRZCode_base& out_FRZCode,int compress_step_count,const unsigned char* src,const unsigned char* src_end){
+    assert(src_end-src<=(((unsigned int)1<<31)-1));
+    assert(compress_step_count>=1);
+    const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);
+    assert((stepMemSize>0)||(src_end==src));
+    
+    const int kLookupFrontLength=2*1024*1024;
+    const int kLookupBackLength=2*1024;
+    int lookupFrontLength=kLookupFrontLength;
+    if (lookupFrontLength*4>stepMemSize)
+        lookupFrontLength=(stepMemSize>>4);
+    
+    const unsigned char* cur_src=src;
+    const unsigned char* cur_src_end;
+    for (int i=0;i<compress_step_count;++i) {
+        cur_src_end=src+(i+1)*stepMemSize+kLookupBackLength;
+        int lookupBackLength=kLookupBackLength;
+        if (cur_src_end>src_end){
+            cur_src_end=src_end;
+            lookupBackLength=0;
+        }
+        const unsigned char* match_src=cur_src;
+        if (match_src-src>lookupFrontLength)
+            match_src-=lookupFrontLength;
+        TFRZBestZiper FRZBestZiper(match_src,cur_src_end);
+        cur_src=FRZBestZiper.getCode(out_FRZCode,cur_src,lookupBackLength);
+    }
+    assert(cur_src==src_end);
+}

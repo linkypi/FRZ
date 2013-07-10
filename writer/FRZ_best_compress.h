@@ -58,14 +58,29 @@ private:
 
 class TFRZBestZiper{
 public:
-    TFRZBestZiper(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src,const TFRZ_Byte* src_end);
+    TFRZBestZiper(const TFRZ_Byte* src,const TFRZ_Byte* src_end);
+    const TFRZ_Byte* getCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kcanNotZipLength);
+    
+    static int compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize) {
+        const int kSpace_O=10;
+        const double allCanUseMemrey=allCanUseMemrey_MB*(1024.0*1024);
+        if (allCanUseMemrey>(srcDataSize*(kSpace_O+2)))
+            return 1;
+        assert(allCanUseMemrey>=srcDataSize*2.5);
+        int result=(int)(0.9+kSpace_O/(allCanUseMemrey/(srcDataSize+1)-2));
+        if (result<1) result=1;
+        return result;
+    }
+    
+    static void compress_by_step(TFRZCode_base& out_FRZCode,int compress_step_count,const unsigned char* src,const unsigned char* src_end);
 private:
     TSuffixString m_sstring;
     //std::map<int,int> m_forwardOffsert_memcache;
-    void createCode(TFRZCode_base& out_FRZCode);
+    const TFRZ_Byte* createCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kcanNotZipLength);
     void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kMaxForwardOffsert);
     
     bool getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestZipBitLength,int nozipBegin,int endString);
+    
 };
 
 
