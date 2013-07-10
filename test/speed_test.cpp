@@ -8,7 +8,6 @@
 #include <time.h>
 #include "../writer/FRZ1_compress.h"
 #include "../writer/FRZ2_compress.h"
-//#include "../writer/FRZ_table_compress.h"
 #include "../reader/FRZ1_decompress.h"
 #include "../reader/FRZ2_decompress.h"
 #include "lzo1x.h"
