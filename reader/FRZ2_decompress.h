@@ -37,14 +37,30 @@ enum TFRZ2CodeType{
     kFRZ2CodeType_zip   = 1     //1表示后面存的压缩(替代)数据.
 };
 static const int kFRZ2CodeType_bit=1;
+    
+static const int kMinMatchLength=2;
 
 
-frz_BOOL _beta_FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_end,
+frz_BOOL FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_end,
                               const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
-frz_BOOL _beta_FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
+frz_BOOL FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
                               const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
+
+struct TFRZ2_decompress_stream{
+    void*           read_callBackData;
+    void*           write_callBackData;
+    unsigned char*  (*read) (void* read_callBackData,int readSize);
+    void            (*write_init) (void* write_callBackData,int kMaxDecompressWindowsSize,int kMaxStepMemorySize);
+    unsigned char*  (*write_begin) (void* write_callBackData,int curDecompressWindowsSize,int dataSize);
+    void            (*write_end) (void* write_callBackData);
+};
+
+frz_BOOL FRZ2_decompress_stream(const struct TFRZ2_decompress_stream* stream);
+frz_BOOL FRZ2_decompress_stream_safe(const struct TFRZ2_decompress_stream* stream);
+
+    
 #ifdef __cplusplus
 }
 #endif

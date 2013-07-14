@@ -47,6 +47,7 @@ public:
     virtual void pushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength)=0;
     
     virtual int getMinMatchLength()const=0;
+    virtual int getMaxForwardOffsert(TFRZ_Int32 curPos)const=0; //最大议前移匹配距离.
     virtual int getMinZipBitLength()const{ return getZipBitLength(getMinMatchLength())-1; }//最少要压缩的bit数.
     virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const=0;
     virtual int getZipParameterForBestUncompressSpeed()const=0;
@@ -78,7 +79,7 @@ private:
     TSuffixString m_sstring;
     //std::map<int,int> m_forwardOffsert_memcache;
     const TFRZ_Byte* createCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kCanNotZipLength);
-    void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kMaxForwardOffsert);
+    void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert);
     
     bool getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestZipBitLength,int nozipBegin,int endString);
     

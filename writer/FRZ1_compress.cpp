@@ -50,6 +50,7 @@ namespace {
             pack32Bit(m_ctrlCode,frontMatchPos-1);
         }
         
+        virtual int getMaxForwardOffsert(TFRZ_Int32 curPos)const { return 8*1024*1024;  }
         virtual int getMinMatchLength()const { return 3+zip_parameter(); }
         virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
             if (curString<0){ curString=1; matchString=0; }

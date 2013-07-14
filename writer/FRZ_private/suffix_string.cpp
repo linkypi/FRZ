@@ -188,7 +188,7 @@ void TSuffixString::R_create(){
 }
 
 void TSuffixString::LCP_create_withR(){
-    assert(!R.empty());
+    assert(SA.empty()||(!R.empty()));
     LCP.resize(SA.size());
     _LCP_create_withR<TInt,0>(ssbegin,(TInt)SA.size(),&SA[0],&R[0],&LCP[0]);
 }
@@ -198,7 +198,7 @@ void TSuffixString::LCP_create_withOutR(){
     _LCP_create_withOutR<TInt,0>(ssbegin,(TInt)SA.size(),&SA[0],&LCP[0]);
 }
 void TSuffixString::LCPLite_create_withR(){
-    assert(!R.empty());
+    assert(SA.empty()||(!R.empty()));
     LCPLite.resize(SA.size());
     _LCP_create_withR<TUShort,(1<<16)-1>(ssbegin,(TInt)SA.size(),&SA[0],&R[0],&LCPLite[0]);
 }
