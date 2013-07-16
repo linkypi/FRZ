@@ -190,7 +190,7 @@ extern "C" {
     }                                           \
 }
 
-static TFRZ_UInt32 readPackedUInt_fromStream(const struct TFRZ2_decompress_stream* stream){
+static TFRZ_UInt32 readPackedUInt_fromStream(const struct TFRZ2_stream_decompress* stream){
     unsigned char* pcode;
     TFRZ_UInt32 code;
     TFRZ_UInt32 value;
@@ -208,27 +208,27 @@ static TFRZ_UInt32 readPackedUInt_fromStream(const struct TFRZ2_decompress_strea
 
 //for FRZ*_decompress
 #   define _PRIVATE_FRZ1_decompress_NAME                FRZ1_decompress
-#   define _PRIVATE_FRZ2_decompress_stream_NAME         FRZ2_decompress_stream
+#   define _PRIVATE_FRZ2_stream_decompress_NAME         FRZ2_stream_decompress
 #   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag
 #   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte
 #       include "FRZ1_decompress_inc.c"
 #       include "FRZ2_decompress_inc.c"
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
-#   undef  _PRIVATE_FRZ2_decompress_stream_NAME
+#   undef  _PRIVATE_FRZ2_stream_decompress_NAME
 #   undef  _PRIVATE_FRZ1_decompress_NAME
 
 //for FRZ*_decompress_safe
 #   define _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
 #   define _PRIVATE_FRZ1_decompress_NAME                FRZ1_decompress_safe
-#   define _PRIVATE_FRZ2_decompress_stream_NAME         FRZ2_decompress_stream_safe
+#   define _PRIVATE_FRZ2_stream_decompress_NAME         FRZ2_stream_decompress_safe
 #   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag_safe
 #   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte_safe
 #       include "FRZ1_decompress_inc.c"
 #       include "FRZ2_decompress_inc.c"
 #   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
-#   undef  _PRIVATE_FRZ2_decompress_stream_NAME
+#   undef  _PRIVATE_FRZ2_stream_decompress_NAME
 #   undef  _PRIVATE_FRZ1_decompress_NAME
 #   undef  _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
 

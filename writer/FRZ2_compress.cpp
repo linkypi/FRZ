@@ -25,7 +25,7 @@
  */
 #include "FRZ2_compress.h"
 #include "../reader/FRZ2_decompress.h"
-#include "FRZ_best_compress.h"
+#include "FRZ_compress_best.h"
 
 namespace {
     
@@ -184,13 +184,14 @@ namespace {
 } //end namespace
 
 int FRZ2_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize){
-    return TFRZBestZiper::compress_limitMemery_get_compress_step_count(allCanUseMemrey_MB, srcDataSize);
+    return TFRZCompressBest::compress_limitMemery_get_compress_step_count(allCanUseMemrey_MB, srcDataSize);
 }
 void FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     assert(zip_parameter>=kFRZ2_bestSize);
     assert(zip_parameter<=kFRZ2_bestUncompressSpeed);
     TFRZ2Code FRZ2Code(zip_parameter);
-    TFRZBestZiper::compress_by_step(FRZ2Code,compress_step_count,src,src_end);
+    TFRZCompressBest  FRZCompress;
+    TFRZCompressBase::compress_by_step(FRZ2Code,FRZCompress,compress_step_count,src,src_end);
     FRZ2Code.write_code(out_code);
 }
 
@@ -213,7 +214,7 @@ public:
     TFRZ2_stream_compress(int zip_parameter,int maxDecompressWindowsSize,
                           TFRZ_write_code_proc out_code_callBack,void* callBackData,int maxStepMemorySize)
         :TFRZ2Code(zip_parameter),m_maxDecompressWindowsSize(maxDecompressWindowsSize),m_maxStepMemorySize(maxStepMemorySize),
-        m_out_code_callBack(out_code_callBack),m_callBackData(callBackData), m_curWindowsSize(0){
+        m_isNeedOutHead(true),m_out_code_callBack(out_code_callBack),m_callBackData(callBackData), m_curWindowsSize(0){
             assert(out_code_callBack!=0); assert(maxDecompressWindowsSize>0); assert(maxStepMemorySize>0);
         }
     virtual ~TFRZ2_stream_compress(){ flush_code(); }
@@ -221,10 +222,11 @@ public:
     virtual int getMaxForwardOffsert(TFRZ_Int32 curPos)const { return m_curWindowsSize+curPos;  }
 private:
     int                     m_maxDecompressWindowsSize;
+    int                     m_maxStepMemorySize;
+    bool                    m_isNeedOutHead;
     TFRZ_write_code_proc    m_out_code_callBack;
     void*                   m_callBackData;
     int                     m_curWindowsSize;
-    int                     m_maxStepMemorySize;
     
     TFRZ_Buffer             m_dataBuf;
     
@@ -234,7 +236,8 @@ private:
         TFRZ_Buffer&  codeBuf=getCodeBuf();
         if (!codeBuf.empty()){
             TFRZ_Buffer  codeHeadBuf;
-            if (m_curWindowsSize==0){
+            if (m_isNeedOutHead){
+                m_isNeedOutHead=false;
                 pack32Bit(codeHeadBuf,m_maxDecompressWindowsSize);
                 pack32Bit(codeHeadBuf,m_maxStepMemorySize);
             }
@@ -265,8 +268,8 @@ private:
             cur_src_end-=lookupBackLength;
         }
         
-        TFRZBestZiper FRZBestZiper(match_src,cur_src_end);
-        cur_src=FRZBestZiper.getCode(*this,cur_src,lookupBackLength);
+        TFRZCompressBest FRZBestZiper;
+        cur_src=FRZBestZiper.createCode_step(*this,match_src,cur_src,cur_src_end,lookupBackLength);
         write_code();
         
         m_curWindowsSize=(int)(cur_src-match_src);
@@ -274,7 +277,6 @@ private:
             m_dataBuf.erase(m_dataBuf.begin(),m_dataBuf.begin()+m_curWindowsSize-m_maxDecompressWindowsSize);
             m_curWindowsSize=m_maxDecompressWindowsSize;
         }
-        
     }
 };
 

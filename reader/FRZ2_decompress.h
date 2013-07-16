@@ -48,19 +48,19 @@ frz_BOOL FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_en
                               const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
 
-struct TFRZ2_decompress_stream{
+struct TFRZ2_stream_decompress{
     void*           read_callBackData;
     void*           write_callBackData;
-    unsigned char*  (*read) (void* read_callBackData,int readSize);
+    unsigned char*  (*read) (void* read_callBackData,int readSize);//if finish return 0
     void            (*write_init) (void* write_callBackData,int kMaxDecompressWindowsSize,int kMaxStepMemorySize);
     unsigned char*  (*write_begin) (void* write_callBackData,int curDecompressWindowsSize,int dataSize);
     void            (*write_end) (void* write_callBackData);
 };
 
-frz_BOOL FRZ2_decompress_stream(const struct TFRZ2_decompress_stream* stream);
-frz_BOOL FRZ2_decompress_stream_safe(const struct TFRZ2_decompress_stream* stream);
+frz_BOOL FRZ2_stream_decompress(const struct TFRZ2_stream_decompress* stream);
+frz_BOOL FRZ2_stream_decompress_safe(const struct TFRZ2_stream_decompress* stream);
 
-    
+
 #ifdef __cplusplus
 }
 #endif

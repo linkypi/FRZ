@@ -28,9 +28,9 @@ static void testCompressFile(const char* srcFileName,const char* frz2StreamFileN
     assert(in_file);
     assert(out_file);
     
-    const int kMStep=1024*150; //for test
-    TFRZ2_stream_compress_handle  compress_handle=FRZ2_stream_compress_create(0,2*kMStep,FRZ_write_file,out_file,9*kMStep);
-    std::vector<unsigned char> buf(2*kMStep);
+    const int kMStep=1024*256; //for test
+    TFRZ2_stream_compress_handle  compress_handle=FRZ2_stream_compress_create(0,2*kMStep,FRZ_write_file,out_file,21*kMStep);
+    std::vector<unsigned char> buf(4*kMStep);
     while (true) {
         long bufSize=fread(&buf[0],1,buf.size(),in_file);
         if (bufSize>0) {
@@ -47,33 +47,54 @@ static void testCompressFile(const char* srcFileName,const char* frz2StreamFileN
 struct T_testDecompressFile{
     FILE*                       in_file;
     FILE*                       out_file;
-    std::vector<unsigned char>  in_buf;
-    std::vector<unsigned char>  out_buf;
+    unsigned char               in_buf_32[32];
+    unsigned char*              in_buf;
+    int                         in_buf_size;
+    unsigned char*              out_buf;
     int                         saved_curDecompressWindowsSize;
+    int                         out_buf_usedSize;
+    inline T_testDecompressFile():in_buf(0),in_buf_size(0),out_buf(0),saved_curDecompressWindowsSize(0),out_buf_usedSize(0){}
+    inline ~T_testDecompressFile(){ delete []out_buf; }
+    
+    inline unsigned char* get_in_buf(int size){
+        if (size<=in_buf_size) return in_buf;
+        delete []in_buf;
+        in_buf_size=size+in_buf_size;
+        in_buf=new unsigned char[in_buf_size];
+        return in_buf;
+    }
     static unsigned char* read(void* read_callBackData,int readSize){
         T_testDecompressFile& data=*(T_testDecompressFile*)read_callBackData;
-        if (data.in_buf.size()<readSize) data.in_buf.resize(readSize);
-        long readedSize=fread(&data.in_buf[0],1,readSize,data.in_file);
+        unsigned char* dst;
+        if (readSize<=32)
+            dst=&data.in_buf_32[0];
+        else
+            dst=data.get_in_buf(readSize);
+        long readedSize=fread(dst,1,readSize,data.in_file);
         if (readedSize==readSize)
-            return &data.in_buf[0];
+            return dst;
         else
             return 0;
     }
     static void write_init (void* write_callBackData,int kMaxDecompressWindowsSize,int kMaxStepMemorySize){
         T_testDecompressFile& data=*(T_testDecompressFile*)write_callBackData;
-        data.out_buf.reserve(kMaxDecompressWindowsSize+kMaxStepMemorySize);
+        const int maxWriteMemorySize=kMaxDecompressWindowsSize+kMaxStepMemorySize;
+        assert(data.out_buf==0);
+        data.out_buf=new unsigned char[maxWriteMemorySize];
+        data.out_buf_usedSize=0;
     }
     static unsigned char* write_begin (void* write_callBackData,int curDecompressWindowsSize,int dataSize){
         T_testDecompressFile& data=*(T_testDecompressFile*)write_callBackData;
-        assert(curDecompressWindowsSize<=data.out_buf.size());
-        data.out_buf.erase(data.out_buf.begin(), data.out_buf.end()-curDecompressWindowsSize);
-        data.out_buf.resize(curDecompressWindowsSize+dataSize);
+        //assert(curDecompressWindowsSize+dataSize<=data.out_buf.size());
+        //assert(curDecompressWindowsSize<=data.out_buf_usedSize);
+        memcpy(&data.out_buf[0], &data.out_buf[0]+data.out_buf_usedSize-curDecompressWindowsSize,curDecompressWindowsSize);
+        data.out_buf_usedSize=curDecompressWindowsSize+dataSize;
         data.saved_curDecompressWindowsSize=curDecompressWindowsSize;
         return &data.out_buf[0];
     }
     static void write_end (void* write_callBackData){
         T_testDecompressFile& data=*(T_testDecompressFile*)write_callBackData;
-        fwrite(&data.out_buf[data.saved_curDecompressWindowsSize],1,data.out_buf.size()-data.saved_curDecompressWindowsSize,data.out_file);
+        fwrite(&data.out_buf[data.saved_curDecompressWindowsSize],1,data.out_buf_usedSize-data.saved_curDecompressWindowsSize,data.out_file);
     }
 };
 
@@ -85,7 +106,7 @@ static bool testIsEqFile(const char* fileName0,const char* fileName1){
     
     bool result=true;
     std::vector<unsigned char> buf0(1*1024*1024);
-    std::vector<unsigned char> buf1(buf0.size());
+    std::vector<unsigned char> buf1=buf0;
     while (true) {
         long bufSize0=fread(&buf0[0],1,buf0.size(),file0);
         long bufSize1=fread(&buf1[0],1,buf1.size(),file1);
@@ -107,7 +128,7 @@ static void testDecompressFile(const char* dstFileName,const char* frz2StreamFil
     T_testDecompressFile testDecompressFileData;
     testDecompressFileData.in_file=frz_file;
     testDecompressFileData.out_file=out_file;
-    TFRZ2_decompress_stream stream;
+    TFRZ2_stream_decompress stream;
     stream.read_callBackData=&testDecompressFileData;
     stream.write_callBackData=&testDecompressFileData;
     stream.read=T_testDecompressFile::read;
@@ -115,7 +136,7 @@ static void testDecompressFile(const char* dstFileName,const char* frz2StreamFil
     stream.write_begin=T_testDecompressFile::write_begin;
     stream.write_end=T_testDecompressFile::write_end;
     
-    int ret=FRZ2_decompress_stream_safe(&stream);
+    int ret=FRZ2_stream_decompress(&stream);
     assert(ret!=frz_FALSE);
     
     fclose(out_file);
@@ -131,26 +152,34 @@ static void testFile(const char* _srcFileName){
     std::string dstUnFrz2FileName(srcFileName+".unfrz2");
     testDecompressFile(dstUnFrz2FileName.c_str(),frz2FileName.c_str());
     
-    assert(testIsEqFile(srcFileName.c_str(),dstUnFrz2FileName.c_str()));
+    //assert(testIsEqFile(srcFileName.c_str(),dstUnFrz2FileName.c_str()));
 }
 
 int main(){
     std::cout << "start> \n";
+    clock_t time1=clock();
+    const int testDecompressCount=1;
+    for (int i=0; i<testDecompressCount; ++i) {
+        testFile("empty.txt");
+        testFile("test1.txt");
+        testFile("test.txt");
+        //testFile("endict.txt");
+        testFile("world95.txt");
+        testFile("ohs.doc");
+        testFile("FP.LOG");
+        testFile("A10.jpg");
+        testFile("rafale.bmp");
+        testFile("FlashMX.pdf");
+        testFile("vcfiu.hlp");
+        testFile("AcroRd32.exe");
+        testFile("MSO97.DLL");
+        testFile("english.dic");
+    }
+
     
-    testFile("empty.txt");
-    testFile("test1.txt");
-    testFile("test.txt");
-    //testFile("endict.txt");
-    testFile("world95.txt");
-    testFile("ohs.doc");
-    testFile("FP.LOG");
-    testFile("A10.jpg");
-    testFile("rafale.bmp");
-    testFile("FlashMX.pdf");
-    testFile("vcfiu.hlp");
-    testFile("AcroRd32.exe");
-    testFile("MSO97.DLL");
-    testFile("english.dic");
+    clock_t time2=clock();
+    double decompressTime_s=(time2-time1)*1.0/CLOCKS_PER_SEC/testDecompressCount;
+    std::cout << decompressTime_s*1000<<" ms  ";
     
     std::cout << "done!\n";
     return 0;

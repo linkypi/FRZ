@@ -130,7 +130,7 @@ static void outResult(const TTestResult& rt){
 
 
 static void testFile(const char* srcFileName){
-    outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
+    /*outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",6));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",1));
     std::cout << "\n";
@@ -142,7 +142,7 @@ static void testFile(const char* srcFileName){
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",15));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",12));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",11));
-     std::cout << "\n";
+     std::cout << "\n";*/
     
     outResult(testProc(srcFileName,FRZ2_compress,"",FRZ2_decompress,"frz2",0));
     outResult(testProc(srcFileName,FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",0));

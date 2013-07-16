@@ -25,7 +25,7 @@
  */
 #include "FRZ1_compress.h"
 #include "../reader/FRZ1_decompress.h"
-#include "FRZ_best_compress.h"
+#include "FRZ_compress_best.h"
 
 namespace {
     
@@ -72,14 +72,15 @@ namespace {
 } //end namespace
 
 int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize){
-    return TFRZBestZiper::compress_limitMemery_get_compress_step_count(allCanUseMemrey_MB, srcDataSize);
+    return TFRZCompressBest::compress_limitMemery_get_compress_step_count(allCanUseMemrey_MB, srcDataSize);
 }
 
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     assert(zip_parameter>=kFRZ1_bestSize);
     assert(zip_parameter<=kFRZ1_bestUncompressSpeed);
     TFRZ1Code FRZ1Code(zip_parameter);
-    TFRZBestZiper::compress_by_step(FRZ1Code,compress_step_count,src,src_end);
+    TFRZCompressBest  FRZCompress;
+    TFRZCompressBase::compress_by_step(FRZ1Code,FRZCompress,compress_step_count,src,src_end);
     FRZ1Code.write_code(out_code);
 }
 

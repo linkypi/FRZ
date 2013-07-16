@@ -102,7 +102,7 @@ static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME(const TFRZ_B
 
 
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-inline static frz_BOOL FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end
+static frz_BOOL FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end
                                        ,TFRZ_Byte*  _out_data_begin){
 #else
     frz_BOOL FRZ2_decompress(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end){
@@ -118,11 +118,6 @@ inline static frz_BOOL FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byt
     if (zip_code>zip_code_end) return frz_FALSE;
     if (out_data>out_data_end) return frz_FALSE;
 #endif
-    //length=_PRIVATE_FRZ_unpack32BitWithTag_NAME(&zip_code,zip_code_end,0); //dst_size
-    //if ((out_data_end-out_data)!=length) return frz_FALSE;
-    //length=_PRIVATE_FRZ_unpack32BitWithTag_NAME(&zip_code,zip_code_end,0); //code_size
-    //if ((zip_code_end-zip_code)!=length) return frz_FALSE;
-    
     halfByte=0;
     ctrls24=1; //empty
     for (;zip_code<zip_code_end;ctrls24>>=1) {
@@ -171,7 +166,7 @@ frz_BOOL FRZ2_decompress_safe(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const 
 #endif
 
 
-frz_BOOL _PRIVATE_FRZ2_decompress_stream_NAME(const struct TFRZ2_decompress_stream* stream){
+frz_BOOL _PRIVATE_FRZ2_stream_decompress_NAME(const struct TFRZ2_stream_decompress* stream){
     TFRZ_Int32 codeSize;
     TFRZ_Int32 dataSize;
     TFRZ_Byte* out_data;
@@ -188,9 +183,8 @@ frz_BOOL _PRIVATE_FRZ2_decompress_stream_NAME(const struct TFRZ2_decompress_stre
     while (1) {
         dataSize=readPackedUInt_fromStream(stream);
         codeSize=readPackedUInt_fromStream(stream);
-        if (dataSize==0){
+        if (dataSize==0)
             return  (codeSize==0); //finish
-        }
         windows_data=stream->write_begin(stream->write_callBackData,curDecompressWindowsSize,dataSize);
         out_data=windows_data+curDecompressWindowsSize;
         zip_code=stream->read(stream->read_callBackData,codeSize);

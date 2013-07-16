@@ -1,4 +1,4 @@
-//FRZ_best_compress.h
+//FRZ_compress_base.h
 /*
  Copyright (c) 2012-2013 HouSisong All Rights Reserved.
  
@@ -23,12 +23,11 @@
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef _FRZ_BEST_COMPRESS_H_
-#define _FRZ_BEST_COMPRESS_H_
-#include <map>
+#ifndef _FRZ_COMPRESS_BASE_H_
+#define _FRZ_COMPRESS_BASE_H_
+#include <vector>
 #include <assert.h>
 #include "../reader/FRZ_decompress_base.h"
-#include "FRZ_private/suffix_string.h"
 
 class TFRZCode_base{
 public:
@@ -58,11 +57,12 @@ private:
     int m_zip_parameter;
 };
 
-class TFRZBestZiper{
+class TFRZCompressBase{
 public:
-    TFRZBestZiper(const TFRZ_Byte* src,const TFRZ_Byte* src_end);
-    const TFRZ_Byte* getCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kCanNotZipLength);
-    
+    virtual const TFRZ_Byte* createCode_step(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength); //return now src_cur
+protected:
+    virtual bool getBestMatch(TFRZCode_base& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin)=0;
+public:
     static int compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize) {
         const int kSpace_O=10;
         const double allCanUseMemrey=allCanUseMemrey_MB*(1024.0*1024);
@@ -74,15 +74,7 @@ public:
         return result;
     }
     
-    static void compress_by_step(TFRZCode_base& out_FRZCode,int compress_step_count,const unsigned char* src,const unsigned char* src_end);
-private:
-    TSuffixString m_sstring;
-    //std::map<int,int> m_forwardOffsert_memcache;
-    const TFRZ_Byte* createCode(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_cur,int kCanNotZipLength);
-    void _getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert);
-    
-    bool getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestZipBitLength,int nozipBegin,int endString);
-    
+    static void compress_by_step(TFRZCode_base& out_FRZCode,TFRZCompressBase& FRZCompress,int compress_step_count,const unsigned char* src,const unsigned char* src_end);
 };
 
 
@@ -131,4 +123,5 @@ static inline int pack32BitOutSize(TFRZ_UInt32 iValue){
     return pack32BitWithTagOutSize(iValue, 0);
 }
 
-#endif //_FRZ_BEST_COMPRESS_H_
+
+#endif //_FRZ_COMPRESS_BASE_H_

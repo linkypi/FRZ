@@ -31,7 +31,7 @@
 #include <assert.h>
 
 
-enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompressSpeed=32 };
+enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompressSpeed=16 };
 //zip_parameter: 增大该值,则压缩率变小,解压稍快  0时，压缩率最大.
 
 //压缩; 压缩后的数据放到out_code后面; 需要压缩的数据大小(src_end-src)<2G,否则请自己几次压缩.

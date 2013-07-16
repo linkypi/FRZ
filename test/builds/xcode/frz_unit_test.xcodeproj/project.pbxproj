@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		80ABE458179584AD000C5A1E /* FRZ_compress_base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80ABE454179584AD000C5A1E /* FRZ_compress_base.cpp */; };
+		80ABE459179584AD000C5A1E /* FRZ_compress_best.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80ABE456179584AD000C5A1E /* FRZ_compress_best.cpp */; };
 		D6BA8CBA1773C00C002ED18C /* FRZ1_decompress_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8C9F1773C00C002ED18C /* FRZ1_decompress_inc.c */; };
 		D6BA8CBB1773C00C002ED18C /* FRZ2_decompress_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CA11773C00C002ED18C /* FRZ2_decompress_inc.c */; };
 		D6BA8CBC1773C00C002ED18C /* FRZ_decompress.c in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CA21773C00C002ED18C /* FRZ_decompress.c */; };
 		D6BA8CBF1773C00C002ED18C /* unit_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CAE1773C00C002ED18C /* unit_test.cpp */; };
 		D6BA8CC01773C00C002ED18C /* FRZ1_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB01773C00C002ED18C /* FRZ1_compress.cpp */; };
 		D6BA8CC11773C00C002ED18C /* FRZ2_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB21773C00C002ED18C /* FRZ2_compress.cpp */; };
-		D6BA8CC21773C00C002ED18C /* FRZ_best_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB41773C00C002ED18C /* FRZ_best_compress.cpp */; };
 		D6BA8CC31773C00C002ED18C /* suffix_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D6BA8CB81773C00C002ED18C /* suffix_string.cpp */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		80ABE454179584AD000C5A1E /* FRZ_compress_base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_compress_base.cpp; sourceTree = "<group>"; };
+		80ABE455179584AD000C5A1E /* FRZ_compress_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_compress_base.h; sourceTree = "<group>"; };
+		80ABE456179584AD000C5A1E /* FRZ_compress_best.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_compress_best.cpp; sourceTree = "<group>"; };
+		80ABE457179584AD000C5A1E /* FRZ_compress_best.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_compress_best.h; sourceTree = "<group>"; };
 		D6BA8C651773BDCF002ED18C /* frz_unit_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = frz_unit_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6BA8C9E1773C00C002ED18C /* FRZ1_decompress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ1_decompress.h; sourceTree = "<group>"; };
 		D6BA8C9F1773C00C002ED18C /* FRZ1_decompress_inc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FRZ1_decompress_inc.c; sourceTree = "<group>"; };
@@ -42,8 +47,6 @@
 		D6BA8CB11773C00C002ED18C /* FRZ1_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ1_compress.h; sourceTree = "<group>"; };
 		D6BA8CB21773C00C002ED18C /* FRZ2_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ2_compress.cpp; sourceTree = "<group>"; };
 		D6BA8CB31773C00C002ED18C /* FRZ2_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ2_compress.h; sourceTree = "<group>"; };
-		D6BA8CB41773C00C002ED18C /* FRZ_best_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_best_compress.cpp; sourceTree = "<group>"; };
-		D6BA8CB51773C00C002ED18C /* FRZ_best_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_best_compress.h; sourceTree = "<group>"; };
 		D6BA8CB71773C00C002ED18C /* sais.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sais.hxx; sourceTree = "<group>"; };
 		D6BA8CB81773C00C002ED18C /* suffix_string.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = suffix_string.cpp; sourceTree = "<group>"; };
 		D6BA8CB91773C00C002ED18C /* suffix_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = suffix_string.h; sourceTree = "<group>"; };
@@ -103,12 +106,14 @@
 		D6BA8CAF1773C00C002ED18C /* writer */ = {
 			isa = PBXGroup;
 			children = (
+				80ABE454179584AD000C5A1E /* FRZ_compress_base.cpp */,
+				80ABE455179584AD000C5A1E /* FRZ_compress_base.h */,
+				80ABE456179584AD000C5A1E /* FRZ_compress_best.cpp */,
+				80ABE457179584AD000C5A1E /* FRZ_compress_best.h */,
 				D6BA8CB01773C00C002ED18C /* FRZ1_compress.cpp */,
 				D6BA8CB11773C00C002ED18C /* FRZ1_compress.h */,
 				D6BA8CB21773C00C002ED18C /* FRZ2_compress.cpp */,
 				D6BA8CB31773C00C002ED18C /* FRZ2_compress.h */,
-				D6BA8CB41773C00C002ED18C /* FRZ_best_compress.cpp */,
-				D6BA8CB51773C00C002ED18C /* FRZ_best_compress.h */,
 				D6BA8CB61773C00C002ED18C /* FRZ_private */,
 			);
 			path = writer;
@@ -177,11 +182,12 @@
 			files = (
 				D6BA8CBA1773C00C002ED18C /* FRZ1_decompress_inc.c in Sources */,
 				D6BA8CBB1773C00C002ED18C /* FRZ2_decompress_inc.c in Sources */,
+				80ABE459179584AD000C5A1E /* FRZ_compress_best.cpp in Sources */,
 				D6BA8CBC1773C00C002ED18C /* FRZ_decompress.c in Sources */,
 				D6BA8CBF1773C00C002ED18C /* unit_test.cpp in Sources */,
 				D6BA8CC01773C00C002ED18C /* FRZ1_compress.cpp in Sources */,
+				80ABE458179584AD000C5A1E /* FRZ_compress_base.cpp in Sources */,
 				D6BA8CC11773C00C002ED18C /* FRZ2_compress.cpp in Sources */,
-				D6BA8CC21773C00C002ED18C /* FRZ_best_compress.cpp in Sources */,
 				D6BA8CC31773C00C002ED18C /* suffix_string.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

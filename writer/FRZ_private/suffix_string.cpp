@@ -170,10 +170,24 @@ namespace {
     
 }//end namespace
 
-TSuffixString::TSuffixString(const char* src_begin,const char* src_end)
-:ssbegin(src_begin),ssend(src_end){
-    
-    suffixString_create(src_begin,src_end,&SA);
+TSuffixString::TSuffixString(const char* src_begin,const char* src_end){
+    resetString(src_begin,src_end);
+}
+void TSuffixString::clear(){
+    ssbegin=0;
+    ssend=0;
+    SA.clear();
+    R.clear();
+    LCP.clear();
+    LCPLite.clear();
+}
+void TSuffixString::resetString(const char* src_begin,const char* src_end){
+    assert(src_end>=src_begin);
+    clear();
+    ssbegin=src_begin;
+    ssend=src_end;
+    if(src_end>src_begin)
+        suffixString_create(src_begin,src_end,&SA);
     /* test out
      printf("\nsstring:%s",src_begin);
      for (TInt i=0; i<SA.size(); ++i) {

@@ -36,13 +36,15 @@ class TSuffixString{
 public:
     typedef signed int      TInt;
     typedef unsigned short  TUShort;
-
+    
     TSuffixString(const char* src_begin,const char* src_end);
+    void clear();
+    void resetString(const char* src_begin,const char* src_end);
 
     typedef std::vector<TSuffixIndex>   TSuffixArray;
 
-    const char*const    ssbegin;//原字符串.
-    const char*const    ssend;
+    const char*         ssbegin;//原字符串.
+    const char*         ssend;
     TSuffixArray        SA;     //排好序的后缀字符串数组.
     inline TInt size()const { return (TInt)(ssend-ssbegin); }
     TInt lower_bound(const char* str,const char* str_end)const;//return index in SA
