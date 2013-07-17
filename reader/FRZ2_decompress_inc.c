@@ -102,7 +102,7 @@ static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME(const TFRZ_B
 
 
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-static frz_BOOL FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end
+static frz_BOOL _FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end
                                        ,TFRZ_Byte*  _out_data_begin){
 #else
     frz_BOOL FRZ2_decompress(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end){
@@ -113,7 +113,6 @@ static frz_BOOL FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_
     TFRZ_UInt32 frontMatchPos;
     TFRZ_UInt32 length;
     TFRZ_UInt32 halfByte;
-    //TFRZ_UInt32 minMatchLength;
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
     if (zip_code>zip_code_end) return frz_FALSE;
     if (out_data>out_data_end) return frz_FALSE;
@@ -161,44 +160,9 @@ static frz_BOOL FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_
 
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
 frz_BOOL FRZ2_decompress_safe(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end){
-    return FRZ2_decompress_safe_windows(out_data,out_data_end,zip_code,zip_code_end,out_data);
+    return _FRZ2_decompress_safe_windows(out_data,out_data_end,zip_code,zip_code_end,out_data);
 }
 #endif
-
-
-frz_BOOL _PRIVATE_FRZ2_stream_decompress_NAME(const struct TFRZ2_stream_decompress* stream){
-    TFRZ_Int32 codeSize;
-    TFRZ_Int32 dataSize;
-    TFRZ_Byte* out_data;
-    TFRZ_Byte* windows_data;
-    const TFRZ_Byte* zip_code;
-    TFRZ_Int32 kMaxDecompressWindowsSize;
-    TFRZ_Int32 kMaxStepMemorySize;
-    TFRZ_Int32 curDecompressWindowsSize;
-    curDecompressWindowsSize=0;
-    
-    kMaxDecompressWindowsSize=readPackedUInt_fromStream(stream);
-    kMaxStepMemorySize=readPackedUInt_fromStream(stream);
-    stream->write_init(stream->write_callBackData,kMaxDecompressWindowsSize,kMaxStepMemorySize);
-    while (1) {
-        dataSize=readPackedUInt_fromStream(stream);
-        codeSize=readPackedUInt_fromStream(stream);
-        if (dataSize==0)
-            return  (codeSize==0); //finish
-        windows_data=stream->write_begin(stream->write_callBackData,curDecompressWindowsSize,dataSize);
-        out_data=windows_data+curDecompressWindowsSize;
-        zip_code=stream->read(stream->read_callBackData,codeSize);
-#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-        if (!FRZ2_decompress_safe_windows(out_data,out_data+dataSize,zip_code,zip_code+codeSize,windows_data)) return frz_FALSE;
-#else
-        if (!FRZ2_decompress(out_data,out_data+dataSize,zip_code,zip_code+codeSize)) return frz_FALSE;
-#endif
-        stream->write_end(stream->write_callBackData);
-        curDecompressWindowsSize+=dataSize;
-        if (curDecompressWindowsSize>kMaxDecompressWindowsSize)
-            curDecompressWindowsSize=kMaxDecompressWindowsSize;
-    }
-}
 
 
 #endif //_PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE

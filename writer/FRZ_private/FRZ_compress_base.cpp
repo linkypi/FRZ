@@ -25,8 +25,8 @@
  */
 #include "FRZ_compress_base.h"
 
-const TFRZ_Byte* TFRZCompressBase::createCode_step(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength){
-    out_FRZCode.pushDataInit(src_windows,src_end);
+const TFRZ_Byte* TFRZCompressBase::createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength){
+    out_FRZCode.pushDataInit(src_windows,src_cur,src_end);
     const int allDataSize=(int)(src_end-src_windows);
     
     TFRZ_Int32 nozipBegin=(TFRZ_Int32)(src_cur-src_windows);
@@ -61,7 +61,7 @@ const TFRZ_Byte* TFRZCompressBase::createCode_step(TFRZCode_base& out_FRZCode,co
 }
 
 
-void TFRZCompressBase::compress_by_step(TFRZCode_base& out_FRZCode,TFRZCompressBase& FRZCompress,int compress_step_count,const unsigned char* src,const unsigned char* src_end){
+void TFRZCompressBase::compress_by_step(TFRZCodeBase& out_FRZCode,TFRZCompressBase& FRZCompress,int compress_step_count,const unsigned char* src,const unsigned char* src_end){
     assert(src_end-src<=(((unsigned int)1<<31)-1));
     assert(compress_step_count>=1);
     const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);

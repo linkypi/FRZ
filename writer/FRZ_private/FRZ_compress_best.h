@@ -27,18 +27,18 @@
 #define _FRZ_COMPRESS_BEST_H_
 #include "FRZ_compress_base.h"
 #include <map>
-#include "FRZ_private/suffix_string.h"
+#include "suffix_string.h"
 
 class TFRZCompressBest:public TFRZCompressBase{
 public:
     TFRZCompressBest();
-    virtual const TFRZ_Byte* createCode_step(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength);
+    virtual const TFRZ_Byte* createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength);
 protected:
-    virtual bool getBestMatch(TFRZCode_base& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin);
+    virtual bool getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin);
 private:
     TSuffixString m_sstring;
     int m_bestForwardOffsert;
-    void _getBestMatch(TFRZCode_base& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert);
+    void _getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert);
 };
 
 #endif //_FRZ_COMPRESS_BEST_H_

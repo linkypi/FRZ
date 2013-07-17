@@ -27,16 +27,16 @@
 
 static const int _kBestForwardOffsert_zip_parameter_table_size=8+1;
 static const int _kBestForwardOffsert_zip_parameter_table[_kBestForwardOffsert_zip_parameter_table_size]={
-    960*1024,840*1024,720*1024,600*1024, 500*1024, //0..4
-    420*1024,340*1024,300*1024,280*1024//5..8
+    1900*1024,1700*1024,1500*1024,1200*1024, 900*1024, //0..4
+    800*1024,700*1024,600*1024,500*1024//5..8
 };
-static const int _kBestForwardOffsert_zip_parameter_table_minValue=150*1024;
+static const int _kBestForwardOffsert_zip_parameter_table_minValue=200*1024;
 
 
 TFRZCompressBest::TFRZCompressBest():m_sstring(0,0),m_bestForwardOffsert(-1){
 }
 
-const TFRZ_Byte* TFRZCompressBest::createCode_step(TFRZCode_base& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength){
+const TFRZ_Byte* TFRZCompressBest::createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength){
     m_sstring.resetString((const char*)src_windows,(const char*)src_end);
     m_sstring.R_create();
     m_sstring.LCPLite_create_withR();
@@ -46,7 +46,7 @@ const TFRZ_Byte* TFRZCompressBest::createCode_step(TFRZCode_base& out_FRZCode,co
     return result;
 }
 
-void TFRZCompressBest::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert){
+void TFRZCompressBest::_getBestMatch(TFRZCodeBase& out_FRZCode,TSuffixIndex curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert){
     //const TFRZ_Int32 it_cur=m_sstring.lower_bound(m_sstring.ssbegin+curString,m_sstring.ssend);
     const TFRZ_Int32 it_cur=m_sstring.lower_bound_withR(curString);//查找curString自己的位置.
     int it=it_cur+it_inc;
@@ -64,7 +64,6 @@ void TFRZCompressBest::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex cur
     const int kMaxValue_lcp=((TFRZ_UInt32)1<<31)-1;
     const int kMinZipLoseBitLength=8*out_FRZCode.getMinMatchLength()-out_FRZCode.getZipBitLength(out_FRZCode.getMinMatchLength());
     const int kMaxSearchDeepSize=1024*4;//加大可以提高一点压缩率,但可能降低压缩速度.
-    const int kMaxForwardOffsert=out_FRZCode.getMaxForwardOffsert(curString);
     int min_lcp=kMaxValue_lcp;
     for (int deep=kMaxSearchDeepSize;(deep>0)&&(it!=it_end);it+=it_inc,LCP+=it_inc,--deep){
         int curLCP=*LCP;
@@ -78,7 +77,6 @@ void TFRZCompressBest::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex cur
         const int curForwardOffsert=(curString-matchString);
         if (curForwardOffsert>0){
             --deep;
-            if (curForwardOffsert>kMaxForwardOffsert) continue;
             TFRZ_Int32 zipedBitLength=out_FRZCode.getZipBitLength(min_lcp,curString,matchString);
             if (curForwardOffsert>kBestForwardOffsert){//惩罚.
                 zipedBitLength-=8+4;
@@ -100,11 +98,11 @@ void TFRZCompressBest::_getBestMatch(TFRZCode_base& out_FRZCode,TSuffixIndex cur
     }
 }
 
-bool TFRZCompressBest::getBestMatch(TFRZCode_base& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin){
+bool TFRZCompressBest::getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin){
     if (m_bestForwardOffsert<0){
         //m_bestForwardOffsert 增大可以提高压缩率但可能会减慢解压速度(缓存命中降低).
         const int zip_parameter=out_FRZCode.zip_parameter();
-        const int kS=_kBestForwardOffsert_zip_parameter_table_size; //todo:参数比例不同时,不准确.
+        const int kS=_kBestForwardOffsert_zip_parameter_table_size; //note:参数比例不同时,不准确.
         const int kFRZ_bestUncompressSpeed=out_FRZCode.getZipParameterForBestUncompressSpeed();
         assert(kFRZ_bestUncompressSpeed>kS);
         if (zip_parameter<kS){
@@ -118,6 +116,7 @@ bool TFRZCompressBest::getBestMatch(TFRZCode_base& out_FRZCode,TFRZ_Int32 curStr
                 m_bestForwardOffsert=kMax-(kMax-kMin)*(zip_parameter-kS)/(kFRZ_bestUncompressSpeed-kS);
         }
     }
+    
     
     const int noZipLength=curString-nozipBegin;
     //   pksize(noZipLength)+noZipLength

@@ -25,32 +25,15 @@
  */
 #include "FRZ1_compress.h"
 #include "../reader/FRZ1_decompress.h"
-#include "FRZ_compress_best.h"
+#include "FRZ_private/FRZ_compress_best.h"
 
 namespace {
     
-    class TFRZ1Code:public TFRZCode_base{
+    class TFRZ1Code:public TFRZCodeBase{
     public:
-        inline explicit TFRZ1Code(int zip_parameter):TFRZCode_base(zip_parameter){
-        }
-        virtual void pushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd){
-            assert(nozipEnd>nozipBegin);
-            assert(nozipEnd<=src_end()-src_begin());
-            const TFRZ_Byte* data=src_begin()+nozipBegin;
-            const TFRZ_Byte* data_end=src_begin()+nozipEnd;
-            pack32BitWithTag(m_ctrlCode,(nozipEnd-nozipBegin)-1, kFRZ1CodeType_nozip,kFRZ1CodeType_bit);
-            m_dataBuf.insert(m_dataBuf.end(),data,data_end);
+        inline explicit TFRZ1Code(int zip_parameter):TFRZCodeBase(zip_parameter){
         }
         
-        virtual void pushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength){
-            const TFRZ_Int32 frontMatchPos=curPos-matchPos;
-            assert(frontMatchPos>0);
-            assert(matchLength>=getMinMatchLength());
-            pack32BitWithTag(m_ctrlCode,matchLength-1, kFRZ1CodeType_zip,kFRZ1CodeType_bit);
-            pack32Bit(m_ctrlCode,frontMatchPos-1);
-        }
-        
-        virtual int getMaxForwardOffsert(TFRZ_Int32 curPos)const { return 8*1024*1024;  }
         virtual int getMinMatchLength()const { return 3+zip_parameter(); }
         virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
             if (curString<0){ curString=1; matchString=0; }
@@ -58,15 +41,40 @@ namespace {
         }
         virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ1_bestUncompressSpeed; }
         virtual int getNozipLengthOutBitLength(int nozipLength)const{ assert(nozipLength>=1); return 8*pack32BitWithTagOutSize(nozipLength-1,kFRZ1CodeType_bit); }
+    public:
+        virtual bool  outCodeBegin(const TFRZ_Byte** out_codeBegin,const TFRZ_Byte** out_codeEnd){
+            if (m_ctrlCode.empty()) return false;
+            m_out_code_temp.clear();
+            pack32Bit(m_out_code_temp,(TFRZ_Int32)m_ctrlCode.size());
+            m_out_code_temp.insert(m_out_code_temp.end(),m_ctrlCode.begin(),m_ctrlCode.end());
+            m_out_code_temp.insert(m_out_code_temp.end(),m_dataBuf.begin(),m_dataBuf.end());
+            *out_codeBegin=&m_out_code_temp[0];
+            *out_codeEnd=&m_out_code_temp[0]+m_out_code_temp.size();
+            return true;
+        }
+        virtual void  outCodeEnd(){ m_out_code_temp.clear(); }
+        virtual void clear(){ TFRZCodeBase::clear(); m_ctrlCode.clear(); m_dataBuf.clear(); }
+    protected:
+        virtual void doPushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd){
+            assert(nozipEnd>nozipBegin);
+            assert(nozipEnd<=src_end()-src_windows());
+            const TFRZ_Byte* data=src_windows()+nozipBegin;
+            const TFRZ_Byte* data_end=src_windows()+nozipEnd;
+            pack32BitWithTag(m_ctrlCode,(nozipEnd-nozipBegin)-1, kFRZ1CodeType_nozip,kFRZ1CodeType_bit);
+            m_dataBuf.insert(m_dataBuf.end(),data,data_end);
+        }
         
-        void write_code(TFRZ_Buffer& out_code)const{
-            pack32Bit(out_code,(TFRZ_Int32)m_ctrlCode.size());
-            out_code.insert(out_code.end(),m_ctrlCode.begin(),m_ctrlCode.end());
-            out_code.insert(out_code.end(),m_dataBuf.begin(),m_dataBuf.end());
+        virtual void doPushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength){
+            const TFRZ_Int32 frontMatchPos=curPos-matchPos;
+            assert(frontMatchPos>0);
+            assert(matchLength>=getMinMatchLength());
+            pack32BitWithTag(m_ctrlCode,matchLength-1, kFRZ1CodeType_zip,kFRZ1CodeType_bit);
+            pack32Bit(m_ctrlCode,frontMatchPos-1);
         }
     private:
         TFRZ_Buffer m_ctrlCode;
         TFRZ_Buffer m_dataBuf;
+        TFRZ_Buffer m_out_code_temp;
     };
 
 } //end namespace
@@ -81,10 +89,20 @@ void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char
     TFRZ1Code FRZ1Code(zip_parameter);
     TFRZCompressBest  FRZCompress;
     TFRZCompressBase::compress_by_step(FRZ1Code,FRZCompress,compress_step_count,src,src_end);
-    FRZ1Code.write_code(out_code);
+    const TFRZ_Byte* code_begin;
+    const TFRZ_Byte* code_end;
+    if (FRZ1Code.outCodeBegin(&code_begin, &code_end)){
+        out_code.insert(out_code.end(), code_begin,code_end);
+        FRZ1Code.outCodeEnd();
+    }
 }
 
 void FRZ1_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     FRZ1_compress_limitMemery(1,out_code,src,src_end,zip_parameter);
+}
+
+
+TFRZCodeBase* _new_FRZ1Code(int zip_parameter){
+    return  new TFRZ1Code(zip_parameter);
 }
 

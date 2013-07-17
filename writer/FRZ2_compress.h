@@ -46,18 +46,6 @@ int FRZ2_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int
 void FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,
                                const unsigned char* src,const unsigned char* src_end,int zip_parameter);
 
-//如果要压缩(解压)的数据超大!装不到内存,那么你可以选择自己分多次处理数据(分别调用FRZ2_compress,解压时也需要自己分多次调用FRZ2_decompress),后面的FRZ2_stream_compress*函数就是一个类似的包装.
-
-
-typedef void (*TFRZ_write_code_proc)(void* callBackData,const unsigned char* code,const unsigned char* code_end);
-typedef void* TFRZ2_stream_compress_handle;
-
-TFRZ2_stream_compress_handle FRZ2_stream_compress_create(int zip_parameter,int maxDecompressWindowsSize,
-                                                         TFRZ_write_code_proc out_code_callBack,void* callBackData,int maxStepMemorySize);
-void FRZ2_stream_compress_append_data(TFRZ2_stream_compress_handle handle,
-                                      const unsigned char* src,const unsigned char* src_end,bool isAppendDataFinish=false);
-void FRZ2_stream_compress_append_data_finish(TFRZ2_stream_compress_handle handle);
-void FRZ2_stream_compress_delete(TFRZ2_stream_compress_handle handle);
-
+//如果要压缩(解压)的数据超大!装不到内存,那么你可以选择自己分多次处理数据(分别调用FRZ2_compress,解压时也需要自己分多次调用FRZ2_decompress),后面的FRZ2_stream*函数就是一个类似的包装.
 
 #endif //_FRZ2_COMPRESS_H_

@@ -190,47 +190,48 @@ extern "C" {
     }                                           \
 }
 
-static TFRZ_UInt32 readPackedUInt_fromStream(const struct TFRZ2_stream_decompress* stream){
-    unsigned char* pcode;
-    TFRZ_UInt32 code;
-    TFRZ_UInt32 value;
-    value=0;
-    do {
-        pcode=stream->read(stream->read_callBackData,1);
-        if (pcode==0) break;
-        code=*pcode;
-        value=(value<<7) | (code&((1<<7)-1));
-    } while (code>>7);
-    return value;
-}
-
 #define _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
 
 //for FRZ*_decompress
-#   define _PRIVATE_FRZ1_decompress_NAME                FRZ1_decompress
-#   define _PRIVATE_FRZ2_stream_decompress_NAME         FRZ2_stream_decompress
 #   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag
 #   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte
 #       include "FRZ1_decompress_inc.c"
 #       include "FRZ2_decompress_inc.c"
+#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ1_stream_decompress
+#     define _PRIVATE_FRZ_decompress_NAME               FRZ1_decompress
+#       include "FRZ_stream_decompress_inc.c"
+#     undef  _PRIVATE_FRZ_decompress_NAME
+#     undef  _PRIVATE_FRZ_stream_decompress_NAME
+#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ2_stream_decompress
+#     define _PRIVATE_FRZ_decompress_NAME               FRZ2_decompress
+#       include "FRZ_stream_decompress_inc.c"
+#     undef  _PRIVATE_FRZ_decompress_NAME
+#     undef  _PRIVATE_FRZ_stream_decompress_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
-#   undef  _PRIVATE_FRZ2_stream_decompress_NAME
-#   undef  _PRIVATE_FRZ1_decompress_NAME
 
 //for FRZ*_decompress_safe
 #   define _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-#   define _PRIVATE_FRZ1_decompress_NAME                FRZ1_decompress_safe
-#   define _PRIVATE_FRZ2_stream_decompress_NAME         FRZ2_stream_decompress_safe
 #   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag_safe
 #   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte_safe
 #       include "FRZ1_decompress_inc.c"
 #       include "FRZ2_decompress_inc.c"
+#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ1_stream_decompress_safe
+#     define _PRIVATE_FRZ_decompress_safe_windows_NAME  _FRZ1_decompress_safe_windows
+#       include "FRZ_stream_decompress_inc.c"
+#     undef  _PRIVATE_FRZ_decompress_safe_windows_NAME
+#     undef  _PRIVATE_FRZ_stream_decompress_NAME
+#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ2_stream_decompress_safe
+#     define _PRIVATE_FRZ_decompress_safe_windows_NAME  _FRZ2_decompress_safe_windows
+#       include "FRZ_stream_decompress_inc.c"
+#     undef  _PRIVATE_FRZ_decompress_safe_windows_NAME
+#     undef  _PRIVATE_FRZ_stream_decompress_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
-#   undef  _PRIVATE_FRZ2_stream_decompress_NAME
-#   undef  _PRIVATE_FRZ1_decompress_NAME
 #   undef  _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
+
+//for FRZ*_stream_decompress*
+
 
 #undef  _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
 

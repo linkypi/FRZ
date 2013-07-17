@@ -14,8 +14,10 @@
 		803D7CDF179247C800678320 /* FRZ2_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 803D7CD0179247C800678320 /* FRZ2_compress.cpp */; };
 		803D7CE1179247C800678320 /* suffix_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 803D7CD6179247C800678320 /* suffix_string.cpp */; };
 		803D7CED1792484000678320 /* stream_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 803D7CEC1792484000678320 /* stream_test.cpp */; };
-		80ABE45E179584EB000C5A1E /* FRZ_compress_base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80ABE45A179584EB000C5A1E /* FRZ_compress_base.cpp */; };
-		80ABE45F179584EB000C5A1E /* FRZ_compress_best.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80ABE45C179584EB000C5A1E /* FRZ_compress_best.cpp */; };
+		80B1883A1796A85800D27598 /* FRZ_stream_compress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80B188381796A85800D27598 /* FRZ_stream_compress.cpp */; };
+		80B1883C1796BA6F00D27598 /* FRZ_stream_decompress_inc.c in Sources */ = {isa = PBXBuildFile; fileRef = 80B1883B1796BA6F00D27598 /* FRZ_stream_decompress_inc.c */; };
+		80B188411796C77F00D27598 /* FRZ_compress_base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80B1883D1796C77F00D27598 /* FRZ_compress_base.cpp */; };
+		80B188421796C77F00D27598 /* FRZ_compress_best.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80B1883F1796C77F00D27598 /* FRZ_compress_best.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,10 +48,13 @@
 		803D7CD6179247C800678320 /* suffix_string.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = suffix_string.cpp; sourceTree = "<group>"; };
 		803D7CD7179247C800678320 /* suffix_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = suffix_string.h; sourceTree = "<group>"; };
 		803D7CEC1792484000678320 /* stream_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stream_test.cpp; path = ../../stream_test.cpp; sourceTree = "<group>"; };
-		80ABE45A179584EB000C5A1E /* FRZ_compress_base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_compress_base.cpp; sourceTree = "<group>"; };
-		80ABE45B179584EB000C5A1E /* FRZ_compress_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_compress_base.h; sourceTree = "<group>"; };
-		80ABE45C179584EB000C5A1E /* FRZ_compress_best.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_compress_best.cpp; sourceTree = "<group>"; };
-		80ABE45D179584EB000C5A1E /* FRZ_compress_best.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_compress_best.h; sourceTree = "<group>"; };
+		80B188381796A85800D27598 /* FRZ_stream_compress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_stream_compress.cpp; sourceTree = "<group>"; };
+		80B188391796A85800D27598 /* FRZ_stream_compress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_stream_compress.h; sourceTree = "<group>"; };
+		80B1883B1796BA6F00D27598 /* FRZ_stream_decompress_inc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FRZ_stream_decompress_inc.c; sourceTree = "<group>"; };
+		80B1883D1796C77F00D27598 /* FRZ_compress_base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_compress_base.cpp; sourceTree = "<group>"; };
+		80B1883E1796C77F00D27598 /* FRZ_compress_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_compress_base.h; sourceTree = "<group>"; };
+		80B1883F1796C77F00D27598 /* FRZ_compress_best.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FRZ_compress_best.cpp; sourceTree = "<group>"; };
+		80B188401796C77F00D27598 /* FRZ_compress_best.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FRZ_compress_best.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +104,7 @@
 				803D7C71179247C700678320 /* FRZ2_decompress_inc.c */,
 				803D7C72179247C700678320 /* FRZ_decompress.c */,
 				803D7C73179247C700678320 /* FRZ_decompress_base.h */,
+				80B1883B1796BA6F00D27598 /* FRZ_stream_decompress_inc.c */,
 			);
 			path = reader;
 			sourceTree = "<group>";
@@ -106,14 +112,12 @@
 		803D7CCD179247C800678320 /* writer */ = {
 			isa = PBXGroup;
 			children = (
-				80ABE45A179584EB000C5A1E /* FRZ_compress_base.cpp */,
-				80ABE45B179584EB000C5A1E /* FRZ_compress_base.h */,
-				80ABE45C179584EB000C5A1E /* FRZ_compress_best.cpp */,
-				80ABE45D179584EB000C5A1E /* FRZ_compress_best.h */,
 				803D7CCE179247C800678320 /* FRZ1_compress.cpp */,
 				803D7CCF179247C800678320 /* FRZ1_compress.h */,
 				803D7CD0179247C800678320 /* FRZ2_compress.cpp */,
 				803D7CD1179247C800678320 /* FRZ2_compress.h */,
+				80B188381796A85800D27598 /* FRZ_stream_compress.cpp */,
+				80B188391796A85800D27598 /* FRZ_stream_compress.h */,
 				803D7CD4179247C800678320 /* FRZ_private */,
 			);
 			path = writer;
@@ -122,6 +126,10 @@
 		803D7CD4179247C800678320 /* FRZ_private */ = {
 			isa = PBXGroup;
 			children = (
+				80B1883D1796C77F00D27598 /* FRZ_compress_base.cpp */,
+				80B1883E1796C77F00D27598 /* FRZ_compress_base.h */,
+				80B1883F1796C77F00D27598 /* FRZ_compress_best.cpp */,
+				80B188401796C77F00D27598 /* FRZ_compress_best.h */,
 				803D7CD5179247C800678320 /* sais.hxx */,
 				803D7CD6179247C800678320 /* suffix_string.cpp */,
 				803D7CD7179247C800678320 /* suffix_string.h */,
@@ -182,13 +190,15 @@
 			files = (
 				803D7CD8179247C800678320 /* FRZ1_decompress_inc.c in Sources */,
 				803D7CDF179247C800678320 /* FRZ2_compress.cpp in Sources */,
-				80ABE45F179584EB000C5A1E /* FRZ_compress_best.cpp in Sources */,
+				80B1883C1796BA6F00D27598 /* FRZ_stream_decompress_inc.c in Sources */,
+				80B1883A1796A85800D27598 /* FRZ_stream_compress.cpp in Sources */,
 				803D7CD9179247C800678320 /* FRZ2_decompress_inc.c in Sources */,
 				803D7CED1792484000678320 /* stream_test.cpp in Sources */,
+				80B188421796C77F00D27598 /* FRZ_compress_best.cpp in Sources */,
 				803D7CE1179247C800678320 /* suffix_string.cpp in Sources */,
-				80ABE45E179584EB000C5A1E /* FRZ_compress_base.cpp in Sources */,
 				803D7CDE179247C800678320 /* FRZ1_compress.cpp in Sources */,
 				803D7CDA179247C800678320 /* FRZ_decompress.c in Sources */,
+				80B188411796C77F00D27598 /* FRZ_compress_base.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

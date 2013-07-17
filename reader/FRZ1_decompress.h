@@ -45,6 +45,9 @@ frz_BOOL FRZ1_decompress     (unsigned char* out_data,unsigned char* out_data_en
 frz_BOOL FRZ1_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
                               const unsigned char* frz1_code,const unsigned char* frz1_code_end);
 
+frz_BOOL FRZ1_stream_decompress(const struct TFRZ_stream_decompress* stream);
+frz_BOOL FRZ1_stream_decompress_safe(const struct TFRZ_stream_decompress* stream);
+
 #ifdef __cplusplus
 }
 #endif

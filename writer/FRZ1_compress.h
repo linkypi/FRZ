@@ -45,6 +45,6 @@ int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,
                                const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
-//如果要压缩(解压)的数据更大,一次装不到内存,那么你可以自己分多次加载数据,分别调用FRZ1_compress,解压时也需要自己分多次调用FRZ1_decompress.
+//如果要压缩(解压)的数据超大!装不到内存,那么你可以选择自己分多次处理数据(分别调用FRZ1_compress,解压时也需要自己分多次调用FRZ1_decompress),后面的FRZ1_stream*函数就是一个类似的包装.
 
 #endif //_FRZ1_COMPRESS_H_

@@ -8,6 +8,7 @@
 #include <time.h>
 #include "../writer/FRZ1_compress.h"
 #include "../writer/FRZ2_compress.h"
+#include "../writer/FRZ_stream_compress.h"
 #include "../reader/FRZ1_decompress.h"
 #include "../reader/FRZ2_decompress.h"
 
@@ -29,16 +30,16 @@ static void testCompressFile(const char* srcFileName,const char* frz2StreamFileN
     assert(out_file);
     
     const int kMStep=1024*256; //for test
-    TFRZ2_stream_compress_handle  compress_handle=FRZ2_stream_compress_create(0,2*kMStep,FRZ_write_file,out_file,21*kMStep);
+    TFRZ_stream_compress_handle compress_handle=FRZ2_stream_compress_best_create(0,2*kMStep,FRZ_write_file,out_file,21*kMStep);
     std::vector<unsigned char> buf(4*kMStep);
     while (true) {
         long bufSize=fread(&buf[0],1,buf.size(),in_file);
         if (bufSize>0) {
-            FRZ2_stream_compress_append_data(compress_handle,&buf[0], &buf[0]+bufSize);
+            FRZ_stream_compress_append_data(compress_handle,&buf[0], &buf[0]+bufSize);
         }else
             break;
     }
-    FRZ2_stream_compress_delete(compress_handle);
+    FRZ_stream_compress_delete(compress_handle);
     
     fclose(in_file);
     fclose(out_file);
@@ -47,14 +48,14 @@ static void testCompressFile(const char* srcFileName,const char* frz2StreamFileN
 struct T_testDecompressFile{
     FILE*                       in_file;
     FILE*                       out_file;
-    unsigned char               in_buf_32[32];
     unsigned char*              in_buf;
-    int                         in_buf_size;
     unsigned char*              out_buf;
+    unsigned char               in_buf_24[24];
+    int                         in_buf_size;
     int                         saved_curDecompressWindowsSize;
     int                         out_buf_usedSize;
     inline T_testDecompressFile():in_buf(0),in_buf_size(0),out_buf(0),saved_curDecompressWindowsSize(0),out_buf_usedSize(0){}
-    inline ~T_testDecompressFile(){ delete []out_buf; }
+    inline ~T_testDecompressFile(){ delete []out_buf;delete []in_buf; }
     
     inline unsigned char* get_in_buf(int size){
         if (size<=in_buf_size) return in_buf;
@@ -66,15 +67,17 @@ struct T_testDecompressFile{
     static unsigned char* read(void* read_callBackData,int readSize){
         T_testDecompressFile& data=*(T_testDecompressFile*)read_callBackData;
         unsigned char* dst;
-        if (readSize<=32)
-            dst=&data.in_buf_32[0];
+        if (readSize<=24)
+            dst=&data.in_buf_24[0];
         else
             dst=data.get_in_buf(readSize);
         long readedSize=fread(dst,1,readSize,data.in_file);
         if (readedSize==readSize)
             return dst;
-        else
+        else{
+            assert(readSize==1);
             return 0;
+        }
     }
     static void write_init (void* write_callBackData,int kMaxDecompressWindowsSize,int kMaxStepMemorySize){
         T_testDecompressFile& data=*(T_testDecompressFile*)write_callBackData;
@@ -128,7 +131,7 @@ static void testDecompressFile(const char* dstFileName,const char* frz2StreamFil
     T_testDecompressFile testDecompressFileData;
     testDecompressFileData.in_file=frz_file;
     testDecompressFileData.out_file=out_file;
-    TFRZ2_stream_decompress stream;
+    TFRZ_stream_decompress stream;
     stream.read_callBackData=&testDecompressFileData;
     stream.write_callBackData=&testDecompressFileData;
     stream.read=T_testDecompressFile::read;
@@ -152,18 +155,18 @@ static void testFile(const char* _srcFileName){
     std::string dstUnFrz2FileName(srcFileName+".unfrz2");
     testDecompressFile(dstUnFrz2FileName.c_str(),frz2FileName.c_str());
     
-    //assert(testIsEqFile(srcFileName.c_str(),dstUnFrz2FileName.c_str()));
+    assert(testIsEqFile(srcFileName.c_str(),dstUnFrz2FileName.c_str()));
 }
 
 int main(){
     std::cout << "start> \n";
     clock_t time1=clock();
-    const int testDecompressCount=1;
+    const int testDecompressCount=10;
     for (int i=0; i<testDecompressCount; ++i) {
         testFile("empty.txt");
         testFile("test1.txt");
         testFile("test.txt");
-        //testFile("endict.txt");
+        testFile("endict.txt");
         testFile("world95.txt");
         testFile("ohs.doc");
         testFile("FP.LOG");

@@ -38,7 +38,7 @@ enum TFRZ2CodeType{
 };
 static const int kFRZ2CodeType_bit=1;
     
-static const int kMinMatchLength=2;
+static const int kMinMatchLength=3;
 
 
 frz_BOOL FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_end,
@@ -47,18 +47,9 @@ frz_BOOL FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_en
 frz_BOOL FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
                               const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
-
-struct TFRZ2_stream_decompress{
-    void*           read_callBackData;
-    void*           write_callBackData;
-    unsigned char*  (*read) (void* read_callBackData,int readSize);//if finish return 0
-    void            (*write_init) (void* write_callBackData,int kMaxDecompressWindowsSize,int kMaxStepMemorySize);
-    unsigned char*  (*write_begin) (void* write_callBackData,int curDecompressWindowsSize,int dataSize);
-    void            (*write_end) (void* write_callBackData);
-};
-
-frz_BOOL FRZ2_stream_decompress(const struct TFRZ2_stream_decompress* stream);
-frz_BOOL FRZ2_stream_decompress_safe(const struct TFRZ2_stream_decompress* stream);
+    
+frz_BOOL FRZ2_stream_decompress(const struct TFRZ_stream_decompress* stream);
+frz_BOOL FRZ2_stream_decompress_safe(const struct TFRZ_stream_decompress* stream);
 
 
 #ifdef __cplusplus
