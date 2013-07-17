@@ -26,11 +26,9 @@
  */
 #include "FRZ1_decompress.h"
 #include "FRZ2_decompress.h"
+#include "FRZ_stream_decompress.h"
 #include "string.h" //memcpy
 #include "assert.h" //assert
-#if defined(_MSC_VER) && (!defined(__cplusplus))
-#define inline __inline
-#endif
 
 //按顺序拷贝内存数据.
 inline static void memcpy_order(TFRZ_Byte* dst,const TFRZ_Byte* src,TFRZ_UInt32 length){
@@ -197,42 +195,29 @@ extern "C" {
 #   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte
 #       include "FRZ1_decompress_inc.c"
 #       include "FRZ2_decompress_inc.c"
-#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ1_stream_decompress
-#     define _PRIVATE_FRZ_decompress_NAME               FRZ1_decompress
-#       include "FRZ_stream_decompress_inc.c"
-#     undef  _PRIVATE_FRZ_decompress_NAME
-#     undef  _PRIVATE_FRZ_stream_decompress_NAME
-#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ2_stream_decompress
-#     define _PRIVATE_FRZ_decompress_NAME               FRZ2_decompress
-#       include "FRZ_stream_decompress_inc.c"
-#     undef  _PRIVATE_FRZ_decompress_NAME
-#     undef  _PRIVATE_FRZ_stream_decompress_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
 #   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
 
 //for FRZ*_decompress_safe
 #   define _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-#   define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag_safe
-#   define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte_safe
-#       include "FRZ1_decompress_inc.c"
-#       include "FRZ2_decompress_inc.c"
-#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ1_stream_decompress_safe
-#     define _PRIVATE_FRZ_decompress_safe_windows_NAME  _FRZ1_decompress_safe_windows
-#       include "FRZ_stream_decompress_inc.c"
-#     undef  _PRIVATE_FRZ_decompress_safe_windows_NAME
-#     undef  _PRIVATE_FRZ_stream_decompress_NAME
-#     define _PRIVATE_FRZ_stream_decompress_NAME        FRZ2_stream_decompress_safe
-#     define _PRIVATE_FRZ_decompress_safe_windows_NAME  _FRZ2_decompress_safe_windows
-#       include "FRZ_stream_decompress_inc.c"
-#     undef  _PRIVATE_FRZ_decompress_safe_windows_NAME
-#     undef  _PRIVATE_FRZ_stream_decompress_NAME
-#   undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
-#   undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
+#       define _PRIVATE_FRZ_unpack32BitWithTag_NAME         unpack32BitWithTag_safe
+#       define _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME    unpack32BitWithHalfByte_safe
+#           include "FRZ1_decompress_inc.c"
+#           include "FRZ2_decompress_inc.c"
+#       undef  _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME
+#       undef  _PRIVATE_FRZ_unpack32BitWithTag_NAME
 #   undef  _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-
-//for FRZ*_stream_decompress*
-
 
 #undef  _PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE
 
 
+const unsigned char* FRZ_stream_decompress_head(const unsigned char* streamHeadCode,const unsigned char* streamHeadCodeEnd,struct TFRZ_stream_head* out_head){
+    assert(out_head->size_of_FRZ_stream_head>=sizeof(int)*3);
+    out_head->data_size=unpack32BitWithTag_safe(&streamHeadCode,streamHeadCodeEnd,0);
+    out_head->frz_code_size=unpack32BitWithTag_safe(&streamHeadCode,streamHeadCodeEnd,0);
+    if ((streamHeadCode<streamHeadCodeEnd)&&(out_head->size_of_FRZ_stream_head>=sizeof(int)*5)){
+        out_head->data_windows_size=unpack32BitWithTag_safe(&streamHeadCode,streamHeadCodeEnd,0);
+        out_head->data_max_step_size=unpack32BitWithTag_safe(&streamHeadCode,streamHeadCodeEnd,0);
+    }
+    return streamHeadCode;
+}

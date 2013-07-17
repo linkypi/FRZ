@@ -26,6 +26,7 @@
 #include "FRZ2_compress.h"
 #include "../reader/FRZ2_decompress.h"
 #include "FRZ_private/FRZ_compress_best.h"
+#include "FRZ_private/FRZ_compress_fast.h"
 
 namespace {
     
@@ -188,6 +189,7 @@ void FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char
     assert(zip_parameter>=kFRZ2_bestSize);
     assert(zip_parameter<=kFRZ2_bestUncompressSpeed);
     TFRZ2Code FRZ2Code(zip_parameter);
+    //TFRZCompressFast  FRZCompress;
     TFRZCompressBest  FRZCompress;
     TFRZCompressBase::compress_by_step(FRZ2Code,FRZCompress,compress_step_count,src,src_end);
     const TFRZ_Byte* code_begin;

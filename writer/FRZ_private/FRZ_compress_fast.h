@@ -1,4 +1,4 @@
-//FRZ_compress_best.h
+//FRZ_compress_fast.h
 /*
  Copyright (c) 2012-2013 HouSisong All Rights Reserved.
  
@@ -23,22 +23,18 @@
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef _FRZ_COMPRESS_BEST_H_
-#define _FRZ_COMPRESS_BEST_H_
+#ifndef _FRZ_COMPRESS_FAST_H_
+#define _FRZ_COMPRESS_FAST_H_
 #include "FRZ_compress_base.h"
-#include <map>
-#include "suffix_string.h"
 
-class TFRZCompressBest:public TFRZCompressBase{
+class TFRZCompressFast:public TFRZCompressBase{
 public:
-    TFRZCompressBest();
+    TFRZCompressFast();
     virtual const TFRZ_Byte* createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength);
 protected:
     virtual bool getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin);
 private:
-    TSuffixString m_sstring;
     int m_bestForwardOffsert;
-    void _getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32& curBestZipBitLength,TFRZ_Int32& curBestMatchString,TFRZ_Int32& curBestMatchLength,int it_inc,int kBestForwardOffsert);
 };
 
-#endif //_FRZ_COMPRESS_BEST_H_
+#endif //_FRZ_COMPRESS_FAST_H_

@@ -102,8 +102,7 @@ static inline TFRZ_UInt32 _PRIVATE_FRZ_unpack32BitWithHalfByte_NAME(const TFRZ_B
 
 
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-static frz_BOOL _FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end
-                                       ,TFRZ_Byte*  _out_data_begin){
+    frz_BOOL FRZ2_decompress_windows_safe(const TFRZ_Byte* data_windows,TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end){
 #else
     frz_BOOL FRZ2_decompress(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end){
 #endif
@@ -133,7 +132,7 @@ static frz_BOOL _FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out
                 frontMatchPos= 1 + _PRIVATE_FRZ_unpack32BitWithTag_NAME(&zip_code,zip_code_end,0);
 #ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
                 if ((length==0)||(length>(TFRZ_UInt32)(out_data_end-out_data))) return frz_FALSE;
-                if ((frontMatchPos==0)||(frontMatchPos>(TFRZ_UInt32)(out_data-_out_data_begin))) return frz_FALSE;
+                if ((frontMatchPos==0)||(frontMatchPos>(TFRZ_UInt32)(out_data-data_windows))) return frz_FALSE;
 #endif
                 out_data+=length;
                 src_data=out_data-frontMatchPos;
@@ -157,12 +156,5 @@ static frz_BOOL _FRZ2_decompress_safe_windows(TFRZ_Byte* out_data,TFRZ_Byte* out
     }
     return (zip_code==zip_code_end)&&(out_data==out_data_end);
 }
-
-#ifdef _PRIVATE_FRZ_DECOMPRESS_RUN_MEM_SAFE_CHECK
-frz_BOOL FRZ2_decompress_safe(TFRZ_Byte* out_data,TFRZ_Byte* out_data_end,const TFRZ_Byte* zip_code,const TFRZ_Byte* zip_code_end){
-    return _FRZ2_decompress_safe_windows(out_data,out_data_end,zip_code,zip_code_end,out_data);
-}
-#endif
-
 
 #endif //_PRIVATE_FRZ_DECOMPRESS_NEED_INCLUDE_CODE

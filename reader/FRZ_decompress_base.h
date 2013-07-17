@@ -30,6 +30,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#   if defined(_MSC_VER) && (!defined(__cplusplus))
+#       define inline __inline
+#   endif
 
 typedef unsigned char   TFRZ_Byte;
 typedef unsigned short  TFRZ_UInt16;
@@ -54,17 +57,7 @@ typedef unsigned int    TFRZ_UInt32;
 #define frz_FALSE   0
 #define frz_TRUE    (!frz_FALSE)
 
-    
-struct TFRZ_stream_decompress{
-    void*           read_callBackData;
-    void*           write_callBackData;
-    unsigned char*  (*read) (void* read_callBackData,int readSize);//if finish return 0
-    void            (*write_init) (void* write_callBackData,int kMaxDecompressWindowsSize,int kMaxStepMemorySize);
-    unsigned char*  (*write_begin) (void* write_callBackData,int curDecompressWindowsSize,int dataSize);
-    void            (*write_end) (void* write_callBackData);
-};
 
-    
 #ifdef __cplusplus
 }
 #endif

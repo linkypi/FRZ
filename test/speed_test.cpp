@@ -82,6 +82,20 @@ double testDecodeProc(T_decompress proc_decompress,unsigned char* out_data,unsig
     return  decompressTime_s;
 }
 
+
+double testEncodeProc(T_compress proc_compress,std::vector<unsigned char>& compressedCode,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+    int testCompressCount=0;
+    clock_t time1=clock();
+    for (;(clock()-time1)<CLOCKS_PER_SEC;) {
+        compressedCode.clear();
+        proc_compress(compressedCode,src,src_end,zip_parameter);
+        ++testCompressCount;
+    }
+    clock_t time2=clock();
+    double compressTime_s=(time2-time1)*1.0/CLOCKS_PER_SEC/testCompressCount;
+    return compressTime_s;
+}
+
 TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char* proc_compress_Name,
                  T_decompress proc_decompress,const char* proc_decompress_Name,int zip_parameter){
     
@@ -90,9 +104,7 @@ TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char
     const unsigned char* src_end=src+oldData.size();
     
     std::vector<unsigned char> compressedCode;
-    clock_t time0=clock();
-    proc_compress(compressedCode,src,src_end,zip_parameter);
-    clock_t time1=clock();
+    double compressTime_s=testEncodeProc(proc_compress,compressedCode,src,src_end,zip_parameter);
     const unsigned char* unsrc=&compressedCode[0];
     
     std::vector<unsigned char> uncompressedCode(oldData.size(),0);
@@ -109,7 +121,7 @@ TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char
     TTestResult result;
     result.procName=proc_decompress_Name;
     result.srcFileName=srcFileName;
-    result.compressTime_s=(time1-time0)*1.0/CLOCKS_PER_SEC;
+    result.compressTime_s=compressTime_s;
     result.decompressTime_s=decompressTime_s;
     result.srcSize=(int)(src_end-src);
     result.zipSize=(int)compressedCode.size();
@@ -122,15 +134,19 @@ static void outResult(const TTestResult& rt){
     std::cout<<"\""<<rt.srcFileName<<"\"\t";
     std::cout<<rt.srcSize/1024.0/1024<<"M\t";
     std::cout<<rt.procName<<"_"<<rt.zip_parameter<<"\t";
-    std::cout<<rt.compressTime_s<<"S\t";
     std::cout<<rt.zipSize*100.0/rt.srcSize<<"%\t";
-    std::cout<<rt.decompressTime_s<<"S\t";
+    //std::cout<<rt.compressTime_s<<"S\t";
+    std::cout<<rt.srcSize/rt.compressTime_s/1024/1024<<"M/S\t";
+    //std::cout<<rt.decompressTime_s<<"S\t";
     std::cout<<rt.srcSize/rt.decompressTime_s/1024/1024<<"M/S\n";
 }
 
 
 static void testFile(const char* srcFileName){
-    /*outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
+    outResult(testProc(srcFileName,FRZ2_compress,"",FRZ2_decompress,"frz2",0));
+    return;
+    
+    outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",6));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",1));
     std::cout << "\n";
@@ -142,7 +158,7 @@ static void testFile(const char* srcFileName){
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",15));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",12));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",11));
-     std::cout << "\n";*/
+     std::cout << "\n";
     
     outResult(testProc(srcFileName,FRZ2_compress,"",FRZ2_decompress,"frz2",0));
     outResult(testProc(srcFileName,FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",0));

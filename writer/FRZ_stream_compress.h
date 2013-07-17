@@ -1,5 +1,5 @@
-//FRZ_compress.h
-//快速解压的一个通用字节流压缩算法.
+//FRZ_stream_compress.h
+//流压缩.
 /*
  Copyright (c) 2012-2013 HouSisong All Rights Reserved.
  
