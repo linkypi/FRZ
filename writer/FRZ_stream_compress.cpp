@@ -30,11 +30,10 @@ class TFRZ_stream_compress{
 public:
     void append_data(const unsigned char* src,const unsigned char* src_end,bool isAppendDataFinish){
         m_dataBuf.insert(m_dataBuf.end(),src,src_end);
-        const int kLookupBackLength=2*1024;
-        compress(isAppendDataFinish?0:kLookupBackLength);
+        compress(false);
     }
     inline void flush_code(){
-        compress(0);
+        compress(true);
         write_code();
     }
     TFRZ_stream_compress(TFRZCodeBase* frzCode,TFRZCompressBase* frzCompress,int maxDecompressWindowsSize,
@@ -78,12 +77,12 @@ private:
         }
     }
     inline int cacheSrcDataSize() const { return (int)m_dataBuf.size()-m_curWindowsSize; }
-    void compress(const int kLookupBackLength){
-        while ((cacheSrcDataSize()>=m_maxStepMemorySize)||((kLookupBackLength==0)&&(cacheSrcDataSize()>0))) {
-            compress_a_step(kLookupBackLength);
+    void compress(bool isFlush){
+        while ((cacheSrcDataSize()>=m_maxStepMemorySize)||(isFlush&&(cacheSrcDataSize()>0))) {
+            compress_a_step();
         }
     }
-    void compress_a_step(const int kLookupBackLength){
+    void compress_a_step(){
         assert(cacheSrcDataSize()!=0);
 
         const unsigned char* match_src=&m_dataBuf[0];
@@ -91,13 +90,9 @@ private:
         const unsigned char* cur_src_end=match_src+m_dataBuf.size();
         if (cur_src_end-cur_src>m_maxStepMemorySize)
             cur_src_end=cur_src+m_maxStepMemorySize;
-        int lookupBackLength=kLookupBackLength;
-        if (cur_src_end-cur_src<lookupBackLength){
-            lookupBackLength=(int)(cur_src_end-cur_src)>>1;
-            cur_src_end-=lookupBackLength;
-        }
         
-        cur_src=m_frzCompress->createCode_step(*m_frzCode,match_src,cur_src,cur_src_end,lookupBackLength);
+        m_frzCompress->createCode_step(*m_frzCode,match_src,cur_src,cur_src_end);
+        cur_src=cur_src_end;
         write_code();
         
         m_curWindowsSize=(int)(cur_src-match_src);
