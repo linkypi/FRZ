@@ -143,8 +143,6 @@ static void outResult(const TTestResult& rt){
 
 
 static void testFile(const char* srcFileName){
-    outResult(testProc(srcFileName,FRZ2_compress,"",FRZ2_decompress,"frz2",0));
-    return;
     
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",6));
