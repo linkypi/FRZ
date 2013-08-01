@@ -74,7 +74,7 @@ class TFRZCompressBase{
 public:
     inline TFRZCompressBase(){ }
     virtual ~TFRZCompressBase(){}
-    virtual const TFRZ_Byte* createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength); //return now src_cur
+    virtual void createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end);
 protected:
     virtual bool getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin)=0;
 public:

@@ -36,13 +36,12 @@ static const int _kBestForwardOffsert_zip_parameter_table_minValue=200*1024;
 TFRZCompressFast::TFRZCompressFast():m_bestForwardOffsert(-1){
 }
 
-const TFRZ_Byte* TFRZCompressFast::createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength){
+void TFRZCompressFast::createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end){
    /* m_sstring.resetString((const char*)src_windows,(const char*)src_end);
     m_sstring.R_create();
     m_sstring.LCPLite_create_withR();*/
-    const TFRZ_Byte* result=TFRZCompressBase::createCode_step(out_FRZCode,src_windows,src_cur,src_end,kCanNotZipLength);
+    TFRZCompressBase::createCode_step(out_FRZCode,src_windows,src_cur,src_end);
     //todo:
-    return result;
 }
 
 bool TFRZCompressFast::getBestMatch(TFRZCodeBase& out_FRZCode,TFRZ_Int32 curString,TFRZ_Int32* out_curBestMatchPos,TFRZ_Int32* out_curBestMatchLength,TFRZ_Int32 nozipBegin){

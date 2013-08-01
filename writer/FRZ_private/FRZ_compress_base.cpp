@@ -25,13 +25,13 @@
  */
 #include "FRZ_compress_base.h"
 
-const TFRZ_Byte* TFRZCompressBase::createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end,int kCanNotZipLength){
+void TFRZCompressBase::createCode_step(TFRZCodeBase& out_FRZCode,const TFRZ_Byte* src_windows,const TFRZ_Byte* src_cur,const TFRZ_Byte* src_end){
     out_FRZCode.pushDataInit(src_windows,src_cur,src_end);
     const int allDataSize=(int)(src_end-src_windows);
     
     TFRZ_Int32 nozipBegin=(TFRZ_Int32)(src_cur-src_windows);
     TFRZ_Int32 curIndex=nozipBegin+1;
-    while (curIndex<allDataSize-(kCanNotZipLength>>1)) {
+    while (curIndex<allDataSize) {
         TFRZ_Int32 matchPos;
         TFRZ_Int32 matchLength;
         if (getBestMatch(out_FRZCode,curIndex,&matchPos,&matchLength,nozipBegin)){
@@ -47,17 +47,8 @@ const TFRZ_Byte* TFRZCompressBase::createCode_step(TFRZCodeBase& out_FRZCode,con
             ++curIndex;
         }
     }
-    if (nozipBegin<allDataSize){
-        //剩余的可以交给下一次处理.
-        if (allDataSize-nozipBegin<=kCanNotZipLength){
-            return src_windows+nozipBegin;
-        }else{
-            out_FRZCode.pushNoZipData(nozipBegin,(TFRZ_Int32)allDataSize-(kCanNotZipLength>>1));
-            return src_end-(kCanNotZipLength>>1);
-        }
-    }else{
-        return src_end; //finish
-    }
+    if (nozipBegin<allDataSize)
+        out_FRZCode.pushNoZipData(nozipBegin,(TFRZ_Int32)allDataSize);
 }
 
 
@@ -68,7 +59,6 @@ void TFRZCompressBase::compress_by_step(TFRZCodeBase& out_FRZCode,TFRZCompressBa
     assert((stepMemSize>0)||(src_end==src));
     
     const int kLookupFrontLength=2*1024*1024;
-    const int kLookupBackLength=2*1024;
     int lookupFrontLength=kLookupFrontLength;
     if (lookupFrontLength*4>stepMemSize)
         lookupFrontLength=(stepMemSize>>4);
@@ -76,16 +66,14 @@ void TFRZCompressBase::compress_by_step(TFRZCodeBase& out_FRZCode,TFRZCompressBa
     const unsigned char* cur_src=src;
     const unsigned char* cur_src_end;
     for (int i=0;i<compress_step_count;++i) {
-        cur_src_end=src+(i+1)*stepMemSize+kLookupBackLength;
-        int lookupBackLength=kLookupBackLength;
-        if (cur_src_end>src_end){
+        cur_src_end=src+(i+1)*stepMemSize;
+        if (cur_src_end>src_end)
             cur_src_end=src_end;
-            lookupBackLength=0;
-        }
         const unsigned char* match_src=cur_src;
         if (match_src-src>lookupFrontLength)
             match_src-=lookupFrontLength;
-        cur_src=FRZCompress.createCode_step(out_FRZCode,match_src,cur_src,cur_src_end,lookupBackLength);
+        FRZCompress.createCode_step(out_FRZCode,match_src,cur_src,cur_src_end);
+        cur_src=cur_src_end;
     }
     assert(cur_src==src_end);
 }

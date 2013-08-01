@@ -36,6 +36,7 @@ namespace {
     // 11  2+4+4 bit
     static const int kPack32BitWithHalfByteMaxValue=(8+64+1024)-1;
     void pack32BitWithHalfByte(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue,int* _isHaveHalfByteIndex){
+        assert(iValue<=kPack32BitWithHalfByteMaxValue);
         const int kMaxPack32BitSize=6;
         TFRZ_Byte buf[kMaxPack32BitSize];
         int codeCount=0;
