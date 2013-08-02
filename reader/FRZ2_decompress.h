@@ -37,13 +37,23 @@ enum TFRZ2CodeType{
     kFRZ2CodeType_zip   = 1     //1表示后面存的压缩(替代)数据.
 };
 static const int kFRZ2CodeType_bit=1;
+    
+static const int kMinMatchLength=3;
 
 
-frz_BOOL _beta_FRZ2_decompress     (unsigned char* out_data,unsigned char* out_data_end,
-                              const unsigned char* frz2_code,const unsigned char* frz2_code_end);
+frz_BOOL FRZ2_decompress(unsigned char* out_data,unsigned char* out_data_end,
+                         const unsigned char* frz2_code,const unsigned char* frz2_code_end);
 
-frz_BOOL _beta_FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
-                              const unsigned char* frz2_code,const unsigned char* frz2_code_end);
+static inline frz_BOOL FRZ2_decompress_windows(const unsigned char* data_windows,unsigned char* out_data,unsigned char* out_data_end,
+                                                const unsigned char* frz2_code,const unsigned char* frz2_code_end){
+    return FRZ2_decompress(out_data,out_data_end,frz2_code,frz2_code_end); }
+
+frz_BOOL FRZ2_decompress_windows_safe(const unsigned char* data_windows,unsigned char* out_data,unsigned char* out_data_end,
+                                      const unsigned char* frz2_code,const unsigned char* frz2_code_end);
+    
+static inline frz_BOOL FRZ2_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
+                                            const unsigned char* frz2_code,const unsigned char* frz2_code_end){
+    return FRZ2_decompress_windows_safe(out_data,out_data,out_data_end,frz2_code,frz2_code_end); }
 
 #ifdef __cplusplus
 }

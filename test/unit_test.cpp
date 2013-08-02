@@ -42,7 +42,7 @@ static int test(const unsigned char* src,const unsigned char* src_end,const char
 static void testFRZ(const unsigned char* src,const unsigned char* src_end,const char* tag){
     sum_src_size+=src_end-src;
     sum_frz1_size+=test(src,src_end,tag,FRZ1_compress,"FRZ1_compress",FRZ1_decompress_safe,"FRZ1_decompress_safe");
-    sum_frz2_size+=test(src,src_end,tag,_beta_FRZ2_compress,"FRZ2_compress",_beta_FRZ2_decompress_safe,"FRZ2_decompress_safe");
+    sum_frz2_size+=test(src,src_end,tag,FRZ2_compress,"FRZ2_compress",FRZ2_decompress_safe,"FRZ2_decompress_safe");
 }
 
 static void testFRZ(const char* src,const char* tag){

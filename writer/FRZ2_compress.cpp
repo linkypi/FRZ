@@ -25,7 +25,8 @@
  */
 #include "FRZ2_compress.h"
 #include "../reader/FRZ2_decompress.h"
-#include "FRZ_best_compress.h"
+#include "FRZ_private/FRZ_compress_best.h"
+#include "FRZ_private/FRZ_compress_fast.h"
 
 namespace {
     
@@ -33,8 +34,9 @@ namespace {
     // 0*  3     bit
     // 10  2+4   bit
     // 11  2+4+4 bit
-    static int kPack32BitWithHalfByteMaxValue=(8+64+1024)-1;
-    void pack32BitWithHalfByte(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue,bool* isHaveHalfByte){
+    static const int kPack32BitWithHalfByteMaxValue=(8+64+1024)-1;
+    void pack32BitWithHalfByte(TFRZ_Buffer& out_code,TFRZ_UInt32 iValue,int* _isHaveHalfByteIndex){
+        assert(iValue<=kPack32BitWithHalfByteMaxValue);
         const int kMaxPack32BitSize=6;
         TFRZ_Byte buf[kMaxPack32BitSize];
         int codeCount=0;
@@ -53,14 +55,17 @@ namespace {
                 buf[codeCount++]=iValue&((1<<4)-1);
             }
         }
+        
+        int& isHaveHalfByteIndex=*_isHaveHalfByteIndex;
         for (int i=0; i<codeCount; ++i) {
-            if (*isHaveHalfByte){
-                assert(!out_code.empty());
-                out_code.back()|=buf[i];
+            if (isHaveHalfByteIndex>=0){
+                assert(isHaveHalfByteIndex<out_code.size());
+                out_code[isHaveHalfByteIndex]|=buf[i];
+                isHaveHalfByteIndex=-1;
             }else{
                 out_code.push_back(buf[i]<<4);
+                isHaveHalfByteIndex=(int)out_code.size()-1;
             }
-            *isHaveHalfByte=!(*isHaveHalfByte);
         }
     }
     
@@ -82,13 +87,32 @@ namespace {
         return codeCount*4;
     }
    
-    class TFRZ2Code:public TFRZCode_base{
+    class TFRZ2Code:public TFRZCodeBase{
     public:
         inline explicit TFRZ2Code(int zip_parameter)
-          :TFRZCode_base(zip_parameter),m_ctrlHalfLength_isHaveHalfByte(false),m_ctrlCount(0){
+          :TFRZCodeBase(zip_parameter){
+              clear();
         }
         
-        virtual void pushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd){
+        virtual int getMinMatchLength()const { return kMinMatchLength+zip_parameter(); }
+        virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
+            assert(matchLength>=kMinMatchLength);
+            if (curString<0){ curString=1; matchString=0; }
+            return 8*matchLength-(kFRZ2CodeType_bit+8*pack32BitWithTagOutSize(curString-matchString-1,0)+pack32BitWithHalfByteOutBitCount(matchLength-kMinMatchLength));
+        }
+        virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ2_bestUncompressSpeed; }
+        virtual int getNozipLengthOutBitLength(int nozipLength)const{ assert(nozipLength>=1); return kFRZ2CodeType_bit+pack32BitWithHalfByteOutBitCount(nozipLength-1); }
+    public:
+        virtual bool  outCodeBegin(const TFRZ_Byte** out_codeBegin,const TFRZ_Byte** out_codeEnd){
+            if (m_codeBuf.empty()) return false;
+            *out_codeBegin=&m_codeBuf[0];
+            *out_codeEnd=&m_codeBuf[0]+m_codeBuf.size();
+            return true;
+        }
+        virtual void  outCodeEnd(){ }
+        virtual void clear(){ TFRZCodeBase::clear(); m_ctrlCodeIndex=-1; m_ctrlCount=0; m_ctrlHalfLength_isHaveHalfByteIndex=-1; m_codeBuf.clear();  }
+    protected:
+        virtual void doPushNoZipData(TFRZ_Int32 nozipBegin,TFRZ_Int32 nozipEnd){
             const int kMinLength=1;
             TFRZ_Int32 length=nozipEnd-nozipBegin;
             assert(length>=kMinLength);
@@ -99,21 +123,22 @@ namespace {
                     length++;
                     cutLength--;
                 }
-                pushNoZipData(nozipBegin,nozipBegin+cutLength);
-                pushNoZipData(nozipBegin+cutLength,nozipEnd);
+                doPushNoZipData(nozipBegin,nozipBegin+cutLength);
+                doPushNoZipData(nozipBegin+cutLength,nozipEnd);
                 return;
             }
             
-            assert(nozipEnd<=src_end()-src_begin());
-            const TFRZ_Byte* data=src_begin()+nozipBegin;
-            const TFRZ_Byte* data_end=src_begin()+nozipEnd;
+            assert(nozipEnd<=src_end()-src_windows());
+            
+            const TFRZ_Byte* data=src_windows()+nozipBegin;
+            const TFRZ_Byte* data_end=src_windows()+nozipEnd;
             ctrlPushBack(kFRZ2CodeType_nozip);
-            pack32BitWithHalfByte(m_ctrlHalfLengthCode,length-kMinLength,&m_ctrlHalfLength_isHaveHalfByte);
-            m_dataBuf.insert(m_dataBuf.end(),data,data_end);
+            pack32BitWithHalfByte(m_codeBuf,length-kMinLength,&m_ctrlHalfLength_isHaveHalfByteIndex);
+            m_codeBuf.insert(m_codeBuf.end(),data,data_end);
         }
         
-        virtual void pushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength){
-            const int kMinLength=getMinMatchLength();
+        virtual void doPushZipData(TFRZ_Int32 curPos,TFRZ_Int32 matchPos,TFRZ_Int32 matchLength){
+            const int kMinLength=kMinMatchLength;
             assert(matchLength>=kMinLength);
             if (matchLength-kMinLength>kPack32BitWithHalfByteMaxValue){
                 int cutLength=kPack32BitWithHalfByteMaxValue+kMinLength;
@@ -122,80 +147,64 @@ namespace {
                     matchLength++;
                     cutLength--;
                 }
-                pushZipData(curPos,matchPos,cutLength);
-                pushZipData(curPos+cutLength,matchPos+cutLength,matchLength);
+                doPushZipData(curPos,matchPos,cutLength);
+                doPushZipData(curPos+cutLength,matchPos+cutLength,matchLength);
                 return;
             }
             
             const TFRZ_Int32 frontMatchPos=curPos-matchPos;
             assert(frontMatchPos>0);
-            assert(matchLength>=getMinMatchLength());
+            assert(matchLength>=kMinMatchLength);
             ctrlPushBack(kFRZ2CodeType_zip);
-            pack32BitWithHalfByte(m_ctrlHalfLengthCode,matchLength-kMinLength,&m_ctrlHalfLength_isHaveHalfByte);
-            pack32Bit(m_frontMatchPosCode,frontMatchPos-1);
+            pack32BitWithHalfByte(m_codeBuf,matchLength-kMinLength,&m_ctrlHalfLength_isHaveHalfByteIndex);
+            pack32Bit(m_codeBuf,frontMatchPos-1);
         }
-        
-        virtual int getMinMatchLength()const { return 3+zip_parameter(); } //2的话很多情况下可以压缩的更小,但可能影响解压速度.
-        virtual int getZipBitLength(int matchLength,TFRZ_Int32 curString=-1,TFRZ_Int32 matchString=-1)const{
-            assert(matchLength>=getMinMatchLength());
-            if (curString<0){ curString=1; matchString=0; }
-            return 8*matchLength-(kFRZ2CodeType_bit+8*pack32BitWithTagOutSize(curString-matchString-1,0)+pack32BitWithHalfByteOutBitCount(matchLength-getMinMatchLength()));
-        }
-        virtual int getZipParameterForBestUncompressSpeed()const{ return kFRZ2_bestUncompressSpeed; }
-        virtual int getNozipLengthOutBitLength(int nozipLength)const{ assert(nozipLength>=1); return kFRZ2CodeType_bit+pack32BitWithHalfByteOutBitCount(nozipLength-1); }
-        
-        void write_code(TFRZ_Buffer& out_code)const{
-            pack32Bit(out_code,m_ctrlCount);
-            pack32Bit(out_code,(TFRZ_Int32)m_ctrlHalfLengthCode.size());
-            pack32Bit(out_code,(TFRZ_Int32)m_frontMatchPosCode.size());
-            out_code.push_back(getMinMatchLength());
-            out_code.insert(out_code.end(),m_ctrlCode.begin(),m_ctrlCode.end());
-            out_code.insert(out_code.end(),m_ctrlHalfLengthCode.begin(),m_ctrlHalfLengthCode.end());
-            out_code.insert(out_code.end(),m_frontMatchPosCode.begin(),m_frontMatchPosCode.end());
-            out_code.insert(out_code.end(),m_dataBuf.begin(),m_dataBuf.end());
-        }
+    
     private:
-        TFRZ_Buffer m_ctrlCode;
+        TFRZ_Int32  m_ctrlCodeIndex;
         TFRZ_Int32  m_ctrlCount;
-        TFRZ_Buffer m_ctrlHalfLengthCode;
-        bool        m_ctrlHalfLength_isHaveHalfByte;
-        TFRZ_Buffer m_frontMatchPosCode;
-        TFRZ_Buffer m_dataBuf;
+        TFRZ_Int32  m_ctrlHalfLength_isHaveHalfByteIndex;
+        TFRZ_Buffer m_codeBuf;
         
         void ctrlPushBack(TFRZ2CodeType type){
+            //字节内从低bit开始放置类型.
             assert(kFRZ2CodeType_bit==1);
-            assert(((m_ctrlCount+7)>>3)==m_ctrlCode.size());
-            const int index=m_ctrlCount&7;
-            //从低bit开始.
-            if (index==0)
-                m_ctrlCode.push_back(type);
-            else
-                m_ctrlCode.back()|=(type<<index);
+            if (m_ctrlCount==0){
+                m_ctrlCodeIndex=(int)m_codeBuf.size();
+                m_codeBuf.push_back(0);
+                m_codeBuf.push_back(0);
+                m_codeBuf.push_back(0);
+            }
+            m_codeBuf[m_ctrlCodeIndex+2-(m_ctrlCount>>3)]|=(type<<(m_ctrlCount&0x07));
             ++m_ctrlCount;
+            if (m_ctrlCount==24) m_ctrlCount=0;
         }
     };
 
 } //end namespace
 
-void _beta_FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+int FRZ2_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize){
+    return TFRZCompressBest::compress_limitMemery_get_compress_step_count(allCanUseMemrey_MB, srcDataSize);
+}
+void FRZ2_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     assert(zip_parameter>=kFRZ2_bestSize);
     assert(zip_parameter<=kFRZ2_bestUncompressSpeed);
-    assert(src_end-src<=(((unsigned int)1<<31)-1));
-    assert(compress_step_count>=1);
-    const int stepMemSize=(int)((src_end-src+compress_step_count-1)/compress_step_count);
-    assert((stepMemSize>0)||(src_end==src));
-    
     TFRZ2Code FRZ2Code(zip_parameter);
-    for (const unsigned char* step_src=src; step_src<src_end; step_src+=stepMemSize) {
-        const unsigned char* step_src_end=step_src+stepMemSize;
-        if (step_src_end>src_end)
-            step_src_end=src_end;
-        TFRZBestZiper FRZBestZiper(FRZ2Code,step_src,step_src_end);
-    }
-    FRZ2Code.write_code(out_code);
+    //TFRZCompressFast  FRZCompress;
+    TFRZCompressBest  FRZCompress;
+    TFRZCompressBase::compress_by_step(FRZ2Code,FRZCompress,compress_step_count,src,src_end);
+    const TFRZ_Byte* code_begin;
+    const TFRZ_Byte* code_end;
+    if (FRZ2Code.outCodeBegin(&code_begin, &code_end)){
+        out_code.insert(out_code.end(), code_begin,code_end);
+        FRZ2Code.outCodeEnd();
+    }}
+
+void FRZ2_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+    FRZ2_compress_limitMemery(1,out_code,src,src_end,zip_parameter);
 }
 
-void _beta_FRZ2_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
-    _beta_FRZ2_compress_limitMemery(1,out_code,src,src_end,zip_parameter);
+TFRZCodeBase* _new_FRZ2Code(int zip_parameter){
+    return  new TFRZ2Code(zip_parameter);
 }
 

@@ -30,6 +30,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#   if defined(_MSC_VER) && (!defined(__cplusplus))
+#       define inline __inline
+#   endif
 
 typedef unsigned char   TFRZ_Byte;
 typedef unsigned short  TFRZ_UInt16;
@@ -53,6 +56,7 @@ typedef unsigned int    TFRZ_UInt32;
 #define frz_BOOL    int
 #define frz_FALSE   0
 #define frz_TRUE    (!frz_FALSE)
+
 
 #ifdef __cplusplus
 }

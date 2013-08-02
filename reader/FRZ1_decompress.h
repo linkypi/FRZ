@@ -39,11 +39,19 @@ enum TFRZ1CodeType{
 static const int kFRZ1CodeType_bit=1;
 
 
-frz_BOOL FRZ1_decompress     (unsigned char* out_data,unsigned char* out_data_end,
-                              const unsigned char* frz1_code,const unsigned char* frz1_code_end);
+frz_BOOL FRZ1_decompress(unsigned char* out_data,unsigned char* out_data_end,
+                         const unsigned char* frz1_code,const unsigned char* frz1_code_end);
+    
+static inline frz_BOOL FRZ1_decompress_windows(const unsigned char* data_windows,unsigned char* out_data,unsigned char* out_data_end,
+                                               const unsigned char* frz1_code,const unsigned char* frz1_code_end){
+    return FRZ1_decompress(out_data,out_data_end,frz1_code,frz1_code_end); }
 
-frz_BOOL FRZ1_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
-                              const unsigned char* frz1_code,const unsigned char* frz1_code_end);
+frz_BOOL FRZ1_decompress_windows_safe(const unsigned char* data_windows,unsigned char* out_data,unsigned char* out_data_end,
+                                      const unsigned char* frz1_code,const unsigned char* frz1_code_end);
+
+static inline frz_BOOL FRZ1_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,
+                                            const unsigned char* frz1_code,const unsigned char* frz1_code_end){
+        return FRZ1_decompress_windows_safe(out_data,out_data,out_data_end,frz1_code,frz1_code_end); }
 
 #ifdef __cplusplus
 }

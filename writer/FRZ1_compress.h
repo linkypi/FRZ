@@ -31,7 +31,7 @@
 #include <assert.h>
 
 
-enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompressSpeed=32 };
+enum TFRZ1_zip_parameter{ kFRZ1_bestSize=0, kFRZ1_default=4, kFRZ1_bestUncompressSpeed=16 };
 //zip_parameter: 增大该值,则压缩率变小,解压稍快  0时，压缩率最大.
 
 //压缩; 压缩后的数据放到out_code后面; 需要压缩的数据大小(src_end-src)<2G,否则请自己几次压缩.
@@ -39,17 +39,12 @@ void FRZ1_compress(std::vector<unsigned char>& out_code,
                    const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
 //工具函数:按可用的最大内存计算比较合适的compress_step_count值.
-static inline int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize) {
-    assert(allCanUseMemrey_MB*(1024*1024/14)>=3*srcDataSize/14);
-    int result=srcDataSize/(allCanUseMemrey_MB*(1024*1024/14)-2*srcDataSize/14);
-    if (result<1) result=1;
-    return result;
-}
+int FRZ1_compress_limitMemery_get_compress_step_count(int allCanUseMemrey_MB,int srcDataSize);
 
-//节约内存的压缩; 如果调用FRZ1_compress时内存不够,可以改掉用FRZ1_compress_limitMemery,解码器不变; 函数实现时分成COMPRESS_STEP_COUNT个块分别压缩.
+//节约内存的压缩; 如果调用FRZ1_compress时内存不够,可以改掉用FRZ1_compress_limitMemery,解码器不变; 函数实现时分成compress_step_count个块分别压缩.
 void FRZ1_compress_limitMemery(int compress_step_count,std::vector<unsigned char>& out_code,
                                const unsigned char* src,const unsigned char* src_end,int zip_parameter=kFRZ1_default);
 
-//如果要压缩(解压)的数据更大,一次装不到内存,那么你可以自己分多次加载数据,分别调用FRZ1_compress,解压时也需要自己分多次调用FRZ1_decompress.
+//如果要压缩(解压)的数据超大!装不到内存,那么你可以选择自己分多次处理数据(分别调用FRZ1_compress,解压时也需要自己分多次调用FRZ1_decompress),后面的FRZ1_stream*函数就是一个类似的包装.
 
 #endif //_FRZ1_COMPRESS_H_

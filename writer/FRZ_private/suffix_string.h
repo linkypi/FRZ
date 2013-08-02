@@ -34,14 +34,17 @@ typedef int TSuffixIndex;
 
 class TSuffixString{
 public:
-    typedef int TInt;
-
+    typedef signed int      TInt;
+    typedef unsigned short  TUShort;
+    
     TSuffixString(const char* src_begin,const char* src_end);
+    void clear();
+    void resetString(const char* src_begin,const char* src_end);
 
     typedef std::vector<TSuffixIndex>   TSuffixArray;
 
-    const char*const    ssbegin;//原字符串.
-    const char*const    ssend;
+    const char*         ssbegin;//原字符串.
+    const char*         ssend;
     TSuffixArray        SA;     //排好序的后缀字符串数组.
     inline TInt size()const { return (TInt)(ssend-ssbegin); }
     TInt lower_bound(const char* str,const char* str_end)const;//return index in SA
@@ -51,9 +54,14 @@ public:
     std::vector<TInt>   R;          //Rank 后缀字符串排名.
     inline const TInt lower_bound_withR(TSuffixIndex curString)const { return R[curString]; }
 
-    void LCP_create(); //must R_create();
+    void LCP_create_withR(); //must R_create();
+    void LCP_create_withOutR();//slow; not need R_create();
     std::vector<TInt>   LCP;        //lcp(i,i+1)  相邻后缀字符串之间的最长公共前缀.
     //todo:inline const Int32 getEqualLength_withLCP(TSuffixIndex aString,TSuffixIndex bString)const;
+    
+    void LCPLite_create_withR(); //must R_create();
+    void LCPLite_create_withOutR();//slow; not need R_create();
+    std::vector<TUShort>   LCPLite;  //相比LCP节约一点内存.
 };
 
 

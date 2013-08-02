@@ -21,10 +21,24 @@ std::string TEST_FILE_DIR ="/Users/Shared/test/testFRZ/";
 #endif
 
 
-void zip_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
+int zip_compress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
 int zip_decompress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end);
-void lzo_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
+int lzo_compress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
 int lzo_decompress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* lzo_code,const unsigned char* lzo_code_end);
+int lzo_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* lzo_code,const unsigned char* lzo_code_end);
+
+int _test_FRZ1_compress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+    std::vector<unsigned char> code;
+    FRZ1_compress(code,src,src_end,zip_parameter);
+    memcpy(out_data, &code[0], code.size());
+    return (int)code.size();
+}
+int _test_FRZ2_compress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+    std::vector<unsigned char> code;
+    FRZ2_compress(code,src,src_end,zip_parameter);
+    memcpy(out_data, &code[0], code.size());
+    return (int)code.size();
+}
 
 void readFile(std::vector<unsigned char>& data,const char* fileName){
     FILE	* file=fopen(fileName, "rb");
@@ -51,7 +65,7 @@ void writeFile(const std::vector<unsigned char>& data,const char* fileName){
 }
 
 
-typedef void (*T_compress)(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
+typedef int (*T_compress)(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter);
 typedef frz_BOOL (*T_decompress)(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* zip_code,const unsigned char* zip_code_end);
 
 struct TTestResult {
@@ -81,6 +95,22 @@ double testDecodeProc(T_decompress proc_decompress,unsigned char* out_data,unsig
     return  decompressTime_s;
 }
 
+
+double testEncodeProc(T_compress proc_compress,std::vector<unsigned char>& compressedCode,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+    int testCompressCount=0;
+    compressedCode.resize((src_end-src)*1.2+1024);
+    int dstCodeSize=0;
+    clock_t time1=clock();
+    for (;(clock()-time1)<CLOCKS_PER_SEC;) {
+        dstCodeSize=proc_compress(&compressedCode[0],&compressedCode[0]+compressedCode.size(),src,src_end,zip_parameter);
+        ++testCompressCount;
+    }
+    clock_t time2=clock();
+    compressedCode.resize(dstCodeSize);
+    double compressTime_s=(time2-time1)*1.0/CLOCKS_PER_SEC/testCompressCount;
+    return compressTime_s;
+}
+
 TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char* proc_compress_Name,
                  T_decompress proc_decompress,const char* proc_decompress_Name,int zip_parameter){
     
@@ -89,9 +119,7 @@ TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char
     const unsigned char* src_end=src+oldData.size();
     
     std::vector<unsigned char> compressedCode;
-    clock_t time0=clock();
-    proc_compress(compressedCode,src,src_end,zip_parameter);
-    clock_t time1=clock();
+    double compressTime_s=testEncodeProc(proc_compress,compressedCode,src,src_end,zip_parameter);
     const unsigned char* unsrc=&compressedCode[0];
     
     std::vector<unsigned char> uncompressedCode(oldData.size(),0);
@@ -108,7 +136,7 @@ TTestResult testProc(const char* srcFileName,T_compress proc_compress,const char
     TTestResult result;
     result.procName=proc_decompress_Name;
     result.srcFileName=srcFileName;
-    result.compressTime_s=(time1-time0)*1.0/CLOCKS_PER_SEC;
+    result.compressTime_s=compressTime_s;
     result.decompressTime_s=decompressTime_s;
     result.srcSize=(int)(src_end-src);
     result.zipSize=(int)compressedCode.size();
@@ -121,38 +149,52 @@ static void outResult(const TTestResult& rt){
     std::cout<<"\""<<rt.srcFileName<<"\"\t";
     std::cout<<rt.srcSize/1024.0/1024<<"M\t";
     std::cout<<rt.procName<<"_"<<rt.zip_parameter<<"\t";
-    std::cout<<rt.compressTime_s<<"S\t";
     std::cout<<rt.zipSize*100.0/rt.srcSize<<"%\t";
-    std::cout<<rt.decompressTime_s<<"S\t";
+    //std::cout<<rt.compressTime_s<<"S\t";
+    std::cout<<rt.srcSize/rt.compressTime_s/1024/1024<<"M/S\t";
+    //std::cout<<rt.decompressTime_s<<"S\t";
     std::cout<<rt.srcSize/rt.decompressTime_s/1024/1024<<"M/S\n";
 }
 
 
-static void testFile(const char* srcFileName){    
+static void testFile(const char* srcFileName){
+    
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",9));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",6));
     outResult(testProc(srcFileName,zip_compress,"",zip_decompress,"zlib",1));
     std::cout << "\n";
     
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",999));
+    //outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress_safe,"lzo1xSafe",999));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",1));
+    //outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress_safe,"lzo1xSafe",1));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",15));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",12));
     outResult(testProc(srcFileName,lzo_compress,"",lzo_decompress,"lzo1x",11));
+     std::cout << "\n";
+    
+    outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress,"frz1",0));
+    //outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress_safe,"frz1Safe",0));
+    outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress,"frz1",1));
+    //outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress_safe,"frz1Safe",1));
+    outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress,"frz1",2));
+    //outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress_safe,"frz1Safe",2));
+    outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress,"frz1",4));
+    //outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress_safe,"frz1Safe",4));
+    outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress,"frz1",7));
+    //outResult(testProc(srcFileName,_test_FRZ1_compress,"",FRZ1_decompress_safe,"frz1Safe",7));
     std::cout << "\n";
     
-    outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",0));
-    outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",1));
-    outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",2));
-    outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",4));
-    outResult(testProc(srcFileName,FRZ1_compress,"",FRZ1_decompress,"frz1",7));
-    std::cout << "\n";
-    
-    outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",0));
-    outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",1));
-    outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",2));
-    outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",4));
-    outResult(testProc(srcFileName,_beta_FRZ2_compress,"",_beta_FRZ2_decompress,"frz2",7));
+    outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress,"frz2",0));
+    //outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",0));
+    outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress,"frz2",1));
+    //outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",1));
+    outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress,"frz2",2));
+    //outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",2));
+    outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress,"frz2",4));
+    //outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",4));
+    outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress,"frz2",7));
+    //outResult(testProc(srcFileName,_test_FRZ2_compress,"",FRZ2_decompress_safe,"frz2Safe",7));
     std::cout << "\n";
     
     std::cout << "\n";
@@ -160,6 +202,8 @@ static void testFile(const char* srcFileName){
 
 int main(){
     std::cout << "start> \n";
+    
+    //testFile("endict.txt");
     testFile("world95.txt");
     testFile("ohs.doc");
     testFile("FP.LOG");
@@ -184,10 +228,9 @@ lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo
 
 static HEAP_ALLOC(wrkmem, LZO1X_999_MEM_COMPRESS);
 
-void lzo_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
-    lzo_uint out_len = (src_end-src)+((src_end-src) / 16 + 64 + 3);
-    out_code.resize(out_len,0);
-    unsigned char* dst=&out_code[0];
+int lzo_compress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+    lzo_uint out_len =out_data_end-out_data;
+    unsigned char* dst=out_data;
     int r;
     switch (zip_parameter) {
         case 1:
@@ -210,7 +253,7 @@ void lzo_compress(std::vector<unsigned char>& out_code,const unsigned char* src,
             break;
     }
     assert(r == LZO_E_OK);
-    out_code.resize(out_len);
+    return (int)out_len;
 }
 
 int lzo_decompress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* lzo_code,const unsigned char* lzo_code_end){
@@ -220,14 +263,20 @@ int lzo_decompress(unsigned char* out_data,unsigned char* out_data_end,const uns
     return r==LZO_E_OK;
 }
 
+int lzo_decompress_safe(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* lzo_code,const unsigned char* lzo_code_end){
+    lzo_uint new_len=out_data_end-out_data;
+    int  r = lzo1x_decompress_safe(&lzo_code[0],lzo_code_end-lzo_code,&out_data[0],&new_len,NULL);
+    assert(r == LZO_E_OK);
+    return r==LZO_E_OK;
+}
+
 
 /**
  * 对内容进行压缩和编码工作
  */
-void zip_compress(std::vector<unsigned char>& out_code,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
+int zip_compress(unsigned char* out_data,unsigned char* out_data_end,const unsigned char* src,const unsigned char* src_end,int zip_parameter){
     const unsigned char* _zipSrc=&src[0];
-    out_code.resize(src_end-src+1024); //only for test,unsafe !!!
-    unsigned char* _zipDst=&out_code[0];
+    unsigned char* _zipDst=&out_data[0];
     
     //先对原始内容进行压缩工作
     z_stream c_stream;
@@ -235,33 +284,32 @@ void zip_compress(std::vector<unsigned char>& out_code,const unsigned char* src,
     c_stream.zfree = (free_func)0;
     c_stream.opaque = (voidpf)0;
     c_stream.next_in = (Bytef*)_zipSrc;
-    c_stream.avail_in = src_end-src;
+    c_stream.avail_in = (int)(src_end-src);
     c_stream.next_out = (Bytef*)_zipDst;
-    c_stream.avail_out = (unsigned int)out_code.size();
+    c_stream.avail_out = (unsigned int)(out_data_end-out_data);
     int ret = deflateInit2(&c_stream, zip_parameter,Z_DEFLATED, 31,8, Z_DEFAULT_STRATEGY);
     if(ret != Z_OK)
     {
         std::cout <<"|"<<"deflateInit2 error "<<std::endl;
-        return;
+        return 0;
     }
     ret = deflate(&c_stream, Z_FINISH);
     if (ret != Z_STREAM_END)
     {
         deflateEnd(&c_stream);
         std::cout <<"|"<<"ret != Z_STREAM_END err="<< ret <<std::endl;
-        return;
+        return 0;
     }
     
-    int zipLen = c_stream.total_out;
+    int zipLen = (int)c_stream.total_out;
     ret = deflateEnd(&c_stream);
     if (ret != Z_OK)
     {
         std::cout <<"|"<<"deflateEnd error "<<std::endl;
-        return;
+        return 0;
     }
     //压缩完毕进行返回包组织
-    out_code.resize(zipLen);
-    return;
+    return zipLen;
 }
 
 
@@ -287,7 +335,7 @@ int zip_decompress(unsigned char* out_data,unsigned char* out_data_end,const uns
     if (ret != Z_OK)
         return ret;
     
-    strm.avail_in = zip_code_end-zip_code;
+    strm.avail_in = (int)(zip_code_end-zip_code);
     strm.next_in = (unsigned char*)zip_code;
     
     /* run inflate() on input until output buffer not full */

@@ -128,28 +128,36 @@ namespace {
     }
     //*/
     
-    
-    
-    static void _LCP_create(const char* T,TInt n,const TInt* SA,const TInt* R,TInt* LCP){
-        /* //not need R
-         if (n>0)
-         LCP[n-1]=0;
-         for (int i = 1; i < n; ++i) {
-         int l = 0;
-         while (((SA[i]+l)!=n)&&((SA[i-1]+l)!=n)&&(T[SA[i]+l]==T[SA[i-1]+l]))
-         ++l;
-         LCP[i-1] = l;
-         }
-         return;
-         //*/
-        
+    template<class TLCPInt,TInt kMaxLCP=0>
+    static void _LCP_create_withOutR(const char* T,TInt n,const TInt* SA,TLCPInt* LCP){
+        //not need R
         if (n>0)
             LCP[n-1]=0;
-        for (int h = 0, i = 0; i < n; i++){
+        for (int i = 1; i < n; ++i) {
+            TInt h = 0;
+            while (((SA[i]+h)!=n)&&((SA[i-1]+h)!=n)&&(T[SA[i]+h]==T[SA[i-1]+h]))
+                ++h;
+            LCP[i-1] = h;
+            TInt lcp=h;
+            if ((kMaxLCP>0)&&(lcp>kMaxLCP))
+                lcp=kMaxLCP;
+            LCP[i-1] = (TLCPInt)lcp;
+        }
+        return;
+    }
+    
+    template<class TLCPInt,TInt kMaxLCP=0>
+    static void _LCP_create_withR(const char* T,TInt n,const TInt* SA,const TInt* R,TLCPInt* LCP){
+        if (n>0)
+            LCP[n-1]=0;
+        for (TInt h = 0, i = 0; i < n; i++){
             if (R[i] == 0) continue;
-            int j = SA[R[i]-1];
+            TInt j = SA[R[i]-1];
             while ((i+h!=n)&&(j+h!=n)&&(T[i+h] == T[j+h])) ++h;
-            LCP[R[i]-1] = h;
+            TInt lcp=h;
+            if ((kMaxLCP>0)&&(lcp>kMaxLCP))
+                lcp=kMaxLCP;
+            LCP[R[i]-1] = (TLCPInt)lcp;
             if (h > 0) --h;
         }
     }
@@ -162,10 +170,24 @@ namespace {
     
 }//end namespace
 
-TSuffixString::TSuffixString(const char* src_begin,const char* src_end)
-:ssbegin(src_begin),ssend(src_end){
-    
-    suffixString_create(src_begin,src_end,&SA);
+TSuffixString::TSuffixString(const char* src_begin,const char* src_end){
+    resetString(src_begin,src_end);
+}
+void TSuffixString::clear(){
+    ssbegin=0;
+    ssend=0;
+    SA.clear();
+    R.clear();
+    LCP.clear();
+    LCPLite.clear();
+}
+void TSuffixString::resetString(const char* src_begin,const char* src_end){
+    assert(src_end>=src_begin);
+    clear();
+    ssbegin=src_begin;
+    ssend=src_end;
+    if(src_end>src_begin)
+        suffixString_create(src_begin,src_end,&SA);
     /* test out
      printf("\nsstring:%s",src_begin);
      for (TInt i=0; i<SA.size(); ++i) {
@@ -179,10 +201,25 @@ void TSuffixString::R_create(){
     _Rank_create(ssbegin, (TInt)SA.size(), &SA[0],&R[0]);
 }
 
-void TSuffixString::LCP_create(){
-    assert(!R.empty());
+void TSuffixString::LCP_create_withR(){
+    assert(SA.empty()||(!R.empty()));
     LCP.resize(SA.size());
-    _LCP_create(ssbegin,(TInt)SA.size(),&SA[0],&R[0],&LCP[0]);
+    _LCP_create_withR<TInt,0>(ssbegin,(TInt)SA.size(),&SA[0],&R[0],&LCP[0]);
+}
+
+void TSuffixString::LCP_create_withOutR(){
+    LCP.resize(SA.size());
+    _LCP_create_withOutR<TInt,0>(ssbegin,(TInt)SA.size(),&SA[0],&LCP[0]);
+}
+void TSuffixString::LCPLite_create_withR(){
+    assert(SA.empty()||(!R.empty()));
+    LCPLite.resize(SA.size());
+    _LCP_create_withR<TUShort,(1<<16)-1>(ssbegin,(TInt)SA.size(),&SA[0],&R[0],&LCPLite[0]);
+}
+
+void TSuffixString::LCPLite_create_withOutR(){
+    LCPLite.resize(SA.size());
+    _LCP_create_withOutR<TUShort,(1<<16)-1>(ssbegin,(TInt)SA.size(),&SA[0],&LCPLite[0]);
 }
 
 TInt TSuffixString::lower_bound(const char* str,const char* str_end)const{
